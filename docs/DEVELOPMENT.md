@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run db:start          # starts Postgres/Auth/Studio in Docker; prints API URL + anon key
 # paste API URL and anon key into .env.local
 npm run db:reset          # applies supabase/migrations + seed.sql
-npm run dev               # http://localhost:5173
+npm run dev               # http://localhost:5173, plus a Network URL for phones on the same Wi-Fi
 ```
 Local auth emails (verification, password reset) are captured at http://localhost:54324.
 Supabase Studio: http://localhost:54323.
@@ -20,7 +20,7 @@ Supabase Studio: http://localhost:54323.
 ## Scripts
 | Script | What it does |
 | --- | --- |
-| `npm run dev` | Vite dev server |
+| `npm run dev` | Vite dev server; `server.host = true` so it also listens on the LAN (macOS may ask to allow Node through the firewall) |
 | `npm run typecheck` | `tsc -b` (strict) |
 | `npm run lint` | oxlint |
 | `npm run test` / `test:watch` | Vitest (jsdom) |

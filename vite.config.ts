@@ -5,6 +5,9 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // Listen on all interfaces so the dev server is reachable from a phone on the same Wi-Fi
+  // (Vite prints the Network URL). Owner preference, 2026-11-04.
+  server: { host: true },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

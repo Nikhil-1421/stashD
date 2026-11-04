@@ -17,7 +17,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 3 Checklist import (paste, CSV/TSV/JSON, mapping, review, transactional RPC) | ✅ verified in browser; XLSX deferred (D-016) |
 | 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; migration 0006 applied by owner via `db push` (2026-11-04); browser pass pending |
 | 5 Bubble Check (pill grid, filters, selection + bulk ops, keyboard, undo, clipboard) | ✅ code + tests; owner browser pass done 2026-11-04 (all good; large-set layout ideas parked in phase 7) |
-| 6 Binders | 🟡 slice 1 ✅ (schema 0007 applied; select→slot editing, page tools, autosave, undo, auto-layout; owner browser pass OK). Slice 2 code + tests (drag/drop via `@dnd-kit/react`, overview grid); browser pass of drag gestures pending |
+| 6 Binders (schema 0007, select→slot editing, page tools, autosave, undo, auto-layout, drag/drop via `@dnd-kit/react`, overview) | ✅ owner browser pass on desktop and phone 2026-11-04 |
 | 7 Dashboard/search/bulk · 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
 ## Environment and workflow (the non-obvious parts)
@@ -42,13 +42,11 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Owner browser pass for phase 6 slice 2: drag a chip from the Cards panel onto a slot and onto a
-   page tab; drag a filled slot onto another slot (swap) and onto a page tab (first empty slot,
-   "Page n is full" notice when full); drag a page tab onto another tab (reorder); Overview button
-   → thumbnails, click opens a page, drag a thumbnail to reorder, drop a chip on one. On the phone:
-   long-press (250 ms) starts a drag, a quick swipe still scrolls.
-2. Then phase 7 (dashboard, global search, bulk ops, parked Bubble Check large-set layout, manual
-   checklist order mode).
+1. Start phase 7 with route-level code splitting (bundle ~957 kB), then dashboard, global search,
+   bulk ops on the set page, the parked Bubble Check large-set layout, a per-set manual-order mode,
+   per-set notes.
+2. Dev server now listens on the LAN by default (`server.host = true`, owner request 2026-11-04);
+   the owner tests on a phone via the Network URL Vite prints.
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
 - `src/components/ui/` hand-rolled primitives (Button, ButtonLink, Chip, Input, Select, Textarea,

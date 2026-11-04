@@ -16,7 +16,7 @@ npm install
 cp .env.example .env.local        # then fill in the two Supabase values
 npm run db:start                  # local Supabase in Docker; prints API URL and anon key
 npm run db:reset                  # apply migrations
-npm run dev                       # http://localhost:5173
+npm run dev                       # http://localhost:5173 (also exposed on your LAN for phone testing)
 ```
 
 - Put the printed **API URL** in `VITE_SUPABASE_URL` and the **anon key** in

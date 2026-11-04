@@ -104,7 +104,7 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 
 No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set_requirements` under the existing RLS (D-018).
 
-## Phase 6 — Binder engine 🟡 (slices 1 and 2 delivered 2026-11-04; slice 2 browser pass pending)
+## Phase 6 — Binder engine ✅ (2026-11-04; owner browser pass on desktop and mobile)
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
@@ -122,7 +122,7 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Binder overview grid (thumbnails; click to open; drop targets) | ✅ | `BinderOverview.tsx` |
 | Zoom | ⬜ not needed yet; pages scale with the column width | |
 | Manual card reorder in checklists (deferred from phase 3) | ⬜ phase 7 — needs a per-set "manual order" mode first (D-020) | |
-| Browser pass on the hosted project | ✅ slice 1 (owner, 2026-11-04); ⬜ slice 2 drag gestures incl. touch | |
+| Browser pass on the hosted project | ✅ slices 1 and 2 incl. touch drag on a phone (owner, 2026-11-04) | |
 
 ## Phase 7 — Dashboard, global search, bulk ops ⬜
 ## Phase 8 — Wishlist/trade, sharing, copy formats ⬜
