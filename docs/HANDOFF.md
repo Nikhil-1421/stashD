@@ -17,7 +17,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 3 Checklist import (paste, CSV/TSV/JSON, mapping, review, transactional RPC) | ✅ verified in browser; XLSX deferred (D-016) |
 | 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; migration 0006 applied by owner via `db push` (2026-11-04); browser pass pending |
 | 5 Bubble Check (pill grid, filters, selection + bulk ops, keyboard, undo, clipboard) | ✅ code + tests; owner browser pass done 2026-11-04 (all good; large-set layout ideas parked in phase 7) |
-| 6 Binders | 🟡 slice 1 code + tests (2026-11-04): migration 0007 **written, not pushed**; select→slot editing, page tools, autosave, undo, auto-layout. Slice 2 = drag/drop + overview |
+| 6 Binders | 🟡 slice 1 code + tests (2026-11-04): migration 0007 applied to hosted (anon denied on 3 tables, view, RPCs, verified over REST); select→slot editing, page tools, autosave, undo, auto-layout. Browser pass pending. Slice 2 = drag/drop + overview |
 | 7 Dashboard/search/bulk · 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
 ## Environment and workflow (the non-obvious parts)
@@ -25,11 +25,12 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Docker is not running → no local Supabase, no pgTAP. `supabase/tests/database/*.sql` (4 files) are written but unrun.
 - Hosted Supabase project `stashD`, ref `bahyzyokimpgzjukljap`; `.env.local` holds URL + anon key (git-ignored).
 - CLI 3.0 (`npx supabase`) talks to the hosted DB with the login token only; migration history was
-  repaired on 2026-11-04 so `db push --remote` is clean. **Pushing to production is blocked by the
-  Claude Code permission classifier in auto mode** (it denied `supabase db push --remote --yes`).
-  Workflow settled on 2026-11-04: I write the migration and run checks, then the owner runs
-  `npx supabase db push --remote --yes --skip-vault` in their terminal (records history too) and I
-  verify over REST. SQL editor paste remains the fallback (then `migration repair`).
+  repaired on 2026-11-04 so `db push --remote` is clean. **Migration workflow (re-agreed
+  2026-11-04):** I write the migration and run checks, ask the owner for approval in one question,
+  then run `npx supabase db push --remote --yes --skip-vault` myself and verify over REST. The
+  permission classifier denied this once earlier in the day but allowed it for 0007; if it denies
+  again, fall back to asking the owner to run the same command (SQL editor paste + `migration
+  repair` is the last resort).
 - Verify migrations afterwards over REST with curl + anon key (`set -a; source .env.local; set +a`).
   Supabase default grants let `anon` address every table; RLS is the real boundary.
 - Git: branch `feat/foundation`, remote SSH `git@github.com:Nikhil-1421/stashD.git`. Push with
@@ -41,10 +42,9 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. **Owner: push migration 0007** — `npx supabase db push --remote --yes --skip-vault` (adds
-   binders / binder_pages / binder_placements, 5 RPCs, `binder_overview`). Until then `/binders`
-   fails with "relation does not exist". After the push I verify over REST (anon must be denied on
-   the three tables and the view).
+1. Migration 0007 is applied (2026-11-04, pushed by me after approval; REST check: 401/42501 for
+   anon on binders, binder_pages, binder_placements, binder_overview, create_binder,
+   generate_binder_pages).
 2. Owner browser pass for phase 6 slice 1: create a binder (3×3), pick a set in the Cards panel,
    arm a printing, click slots (repeat for copies), select a filled slot → click another to move /
    swap, Remove, Duplicate, Delete key, undo toast + ⌘Z, watch the Saving/Saved indicator, add /
@@ -83,7 +83,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - `src/lib/env.ts` validated env union; `lib/supabase/client.ts` `getSupabase()`/`requireSupabase()`;
   `lib/supabase/database.types.ts` **hand-written** (regenerate with `npm run db:types` once Docker works).
 - `src/test/render.tsx` helpers (`renderWithProviders`, `renderRoutes`, `signedInAs`).
-- Migrations 0001–0007 in `supabase/migrations/` (0007 binders not yet pushed); schema doc `docs/DATABASE_SCHEMA.md`.
+- Migrations 0001–0007 in `supabase/migrations/`, all applied to the hosted project; schema doc `docs/DATABASE_SCHEMA.md`.
 
 ## Conventions that bit us
 - Vitest 5: mock modules with `vi.mock(path, importOriginal)` delegating to a plain `let impl`
