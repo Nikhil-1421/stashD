@@ -30,9 +30,9 @@
   /* Black "galaxy" ground behind everything; the starfield canvas paints on top of it. */
   --color-canvas: #050609;
   /* Stash Ink #111218 and two lifted steps of it. */
-  --color-surface-1: rgb(17 18 24 / 0.8);
-  --color-surface-2: rgb(27 29 38 / 0.86);
-  --color-surface-3: rgb(38 40 52 / 0.92);
+  --color-surface-1: rgb(17 18 24 / 0.64);
+  --color-surface-2: rgb(27 29 38 / 0.72);
+  --color-surface-3: rgb(38 40 52 / 0.82);
   /* Opaque ink for native controls whose popups cannot blend (select menus). */
   --color-surface-solid: #111218;
 

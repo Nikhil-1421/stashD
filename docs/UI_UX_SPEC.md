@@ -20,12 +20,12 @@ The brand is **stashD** (always written that way). Source of truth: `stashD-bran
   forward flight through a black field of brand-gold points with slight sway and twinkle. ~16 depth
   units/s, 30 fps cap, paused when the tab is hidden, a single still frame under
   `prefers-reduced-motion`. Decorative only (`aria-hidden`, no pointer events).
-- **Surfaces.** Stash Ink at 80–92 % opacity so stars read faintly through boxes; sticky bars use
+- **Surfaces.** Stash Ink at 64–82 % opacity so stars read through boxes; sticky bars use
   the canvas colour at 80–85 % with a backdrop blur. Native select menus use opaque ink.
 
 ## Tokens (`src/styles/index.css`)
 - `--color-canvas: #050609` (black ground under the starfield)
-- `--color-surface-1: rgb(17 18 24 / 0.8)` (Stash Ink) · `surface-2: rgb(27 29 38 / 0.86)` · `surface-3: rgb(38 40 52 / 0.92)` · `surface-solid: #111218`
+- `--color-surface-1: rgb(17 18 24 / 0.64)` (Stash Ink) · `surface-2: rgb(27 29 38 / 0.72)` · `surface-3: rgb(38 40 52 / 0.82)` · `surface-solid: #111218`
 - `--color-fg: #FFFFFF` · `fg-muted: #8E92A0` (Mist, 6.0:1) · `fg-subtle: #767A89` (4.5:1)
 - `--color-line: rgb(142 146 160 / 0.2)` · `line-strong: rgb(212 175 55 / 0.45)` (gold hairline on hover/active)
 - `--color-accent: #D4AF37` · `accent-hover: #E3C86E` · `accent-fg: #111218` · `accent-soft: rgb(212 175 55 / 0.14)`
