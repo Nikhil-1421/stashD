@@ -19,13 +19,15 @@ Acceptance criteria and status:
 | typecheck / lint / test / build passing | ✅ (2026-11-04: 25 tests, 0 lint errors, build OK) | `npm run check` |
 
 **External blockers (precise):**
-1. Docker daemon was not running, so the local stack and the pgTAP RLS test could not run. The
-   migration was instead applied to the hosted project `stashD` by pasting it into the SQL editor;
-   REST confirms the table exists and `anon` is denied. Because it was applied by hand, the CLI's
-   migration history is empty; run `npx supabase migration repair --status applied 20261104000000`
-   once (needs Docker per the CLI) or accept the gap until the next migration.
-2. A hosted Supabase project is configured in `.env.local` (anon key, role claim verified). Live
-   auth flows still need a manual browser pass (register → email → login → settings).
+1. Docker daemon is not running, so the local stack and the pgTAP tests cannot run. Migrations
+   0001–0005 were applied to the hosted project `stashD` by pasting them into the SQL editor and
+   verified over REST. On 2026-11-04 the hosted migration history was repaired
+   (`supabase migration repair --remote --status applied …`), and `supabase db push --remote` now
+   reports up to date; the CLI connects with the login token alone (no Docker, no DB password).
+   From here migrations are pushed with `npx supabase db push --remote --yes` after the owner's
+   explicit go-ahead for each one (CLAUDE.md: production migrations need human approval).
+2. A hosted Supabase project is configured in `.env.local` (anon key, role claim verified). Auth,
+   set/card/variant CRUD and checklist import were each verified by the owner in the browser.
 3. No browser automation in the build environment: responsive/keyboard behaviour was reviewed in
    code and component tests, not visually.
 

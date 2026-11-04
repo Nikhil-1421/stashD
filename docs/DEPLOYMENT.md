@@ -19,7 +19,7 @@ Deploy previews work with the same variables; the app shows the setup page if th
 4. Apply migrations from CI or locally:
    ```bash
    npx supabase link --project-ref <ref>
-   npx supabase db push
+   npx supabase db push --remote --yes   # after explicit approval; CLI 3 needs only the login token
    ```
    Production migrations are a human-approved step (see CLAUDE.md); never run them automatically
    from a dev machine without review.
