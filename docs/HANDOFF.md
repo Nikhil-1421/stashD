@@ -102,8 +102,8 @@ Dashboard summary (sets, progress, missing quick access, recent binders), global
 sets/cards, bulk operations on the set page (selection model exists in Bubble Check), the parked
 Bubble Check large-set layout work (density setting, sticky toolbar + range jump links, remembered
 status filter), a per-set "manual order" mode so checklist drag reorder becomes meaningful, and
-per-set notes. Route-level code splitting is overdue (bundle ~860 kB) — do it at the start.
+per-set notes. Route-level code splitting is overdue (bundle ~957 kB, 280 kB gzip) — do it at the start.
 
 ## Checks
 `export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (137 tests
-in 30 files), Vite build (one ~860 kB chunk; split by route at the start of phase 7).
+in 30 files), Vite build (one ~957 kB chunk, 280 kB gzip; split by route at the start of phase 7).
