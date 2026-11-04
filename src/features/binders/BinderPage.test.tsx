@@ -68,7 +68,7 @@ describe('BinderPage', () => {
   it('places a card from the panel, moves it, batches the saves and can undo', async () => {
     renderPage()
     await userEvent.click(await screen.findByRole('button', { name: 'Pikachu Base' }))
-    expect(screen.getByRole('status')).toHaveTextContent('Placing #25 Pikachu')
+    expect(screen.getByText(/^Placing/)).toHaveTextContent('Placing #25 Pikachu')
 
     await userEvent.click(await screen.findByRole('button', { name: 'Slot 1: empty' }))
     expect(slot('Slot 1: #25 Pikachu')).toBeInTheDocument()

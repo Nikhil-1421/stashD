@@ -2,6 +2,7 @@ import { useState, type KeyboardEvent } from 'react'
 import { cn } from '@/lib/utils'
 import type { BinderPage, PrintingDetail } from './api'
 import { slotLabel } from './binder-utils'
+import { useDragSource, useDropTarget } from './dnd'
 import { slotCount } from './domain/layout'
 import type { Placement } from './domain/placements'
 
@@ -21,7 +22,8 @@ type Props = {
 
 /**
  * One binder page as a rows × columns grid of slot buttons. Arrow keys move between slots,
- * Enter/Space activate (place / select / move), Delete clears a filled slot.
+ * Enter/Space activate (place / select / move), Delete clears a filled slot. Filled slots can
+ * also be dragged (pointer) onto other slots or page tabs; every slot is a drop target.
  */
 export function BinderCanvas({ page, placements, details, selectedSlot, placing, moving, disabled, onActivate, onRemove }: Props) {
   const count = slotCount(page)
@@ -62,41 +64,78 @@ export function BinderCanvas({ page, placements, details, selectedSlot, placing,
       className="grid gap-2 rounded-lg border border-line bg-canvas p-3"
       style={{ gridTemplateColumns: `repeat(${page.columns}, minmax(0, 1fr))` }}
     >
-      {Array.from({ length: count }, (_, i) => {
-        const placement = placements.get(i)
-        const detail = placement ? details.get(placement.printingId) : undefined
-        const selected = selectedSlot === i
-        return (
-          <button
-            key={i}
-            type="button"
-            data-slot={i}
-            tabIndex={i === safeFocus ? 0 : -1}
-            disabled={disabled}
-            aria-pressed={selected}
-            aria-label={`${slotLabel(i, detail, placement !== undefined)}${selected ? ', selected' : ''}`}
-            onFocus={() => setFocusIndex(i)}
-            onClick={() => onActivate(i)}
-            className={cn(
-              'relative flex aspect-[5/7] min-h-16 flex-col overflow-hidden rounded-md border p-1.5 text-left transition-colors',
-              placement ? 'border-line-strong bg-surface-2 hover:border-accent' : 'border-dashed border-line bg-surface-1/40 text-fg-subtle hover:border-line-strong',
-              (placing || moving) && !selected && 'hover:border-accent hover:bg-accent-soft',
-              selected && 'ring-2 ring-accent ring-offset-2 ring-offset-canvas',
-              disabled && 'opacity-50',
-            )}
-          >
-            <span className="font-mono text-[10px] leading-none text-fg-subtle">{placement && detail?.number ? `#${detail.number}` : i + 1}</span>
-            {placement ? (
-              <>
-                <span className="mt-auto line-clamp-2 text-xs font-medium leading-tight text-fg">{detail?.name ?? '…'}</span>
-                {detail && detail.variantPosition !== 0 ? <span className="truncate text-[10px] leading-tight text-fg-muted">{detail.variantName}</span> : null}
-              </>
-            ) : (
-              <span className="mt-auto text-[10px] leading-tight">{placing ? 'Place here' : moving ? 'Move here' : 'Empty'}</span>
-            )}
-          </button>
-        )
-      })}
+      {Array.from({ length: count }, (_, i) => (
+        <Slot
+          key={i}
+          pageId={page.id}
+          index={i}
+          placement={placements.get(i)}
+          details={details}
+          tabbable={i === safeFocus}
+          selected={selectedSlot === i}
+          placing={placing}
+          moving={moving}
+          disabled={disabled}
+          onFocus={setFocusIndex}
+          onActivate={onActivate}
+        />
+      ))}
     </div>
+  )
+}
+
+type SlotProps = {
+  pageId: string
+  index: number
+  placement: Placement | undefined
+  details: ReadonlyMap<string, PrintingDetail>
+  tabbable: boolean
+  selected: boolean
+  placing: boolean
+  moving: boolean
+  disabled: boolean
+  onFocus: (index: number) => void
+  onActivate: (index: number) => void
+}
+
+/** One slot: a button (click / keyboard path), a drag source when filled, and a drop target. */
+function Slot({ pageId, index, placement, details, tabbable, selected, placing, moving, disabled, onFocus, onActivate }: SlotProps) {
+  const detail = placement ? details.get(placement.printingId) : undefined
+  const { dragRef, isDragging } = useDragSource(`slot:${pageId}:${index}`, { kind: 'slot', pageId, slotIndex: index }, disabled || placement === undefined)
+  const { dropRef, isDropTarget } = useDropTarget(`drop:${pageId}:${index}`, { kind: 'slot', pageId, slotIndex: index }, ['printing', 'slot'], disabled)
+  return (
+    <button
+      ref={(el) => {
+        dragRef(el)
+        dropRef(el)
+      }}
+      type="button"
+      data-slot={index}
+      tabIndex={tabbable ? 0 : -1}
+      disabled={disabled}
+      aria-pressed={selected}
+      aria-label={`${slotLabel(index, detail, placement !== undefined)}${selected ? ', selected' : ''}`}
+      onFocus={() => onFocus(index)}
+      onClick={() => onActivate(index)}
+      className={cn(
+        'relative flex aspect-[5/7] min-h-16 flex-col overflow-hidden rounded-md border p-1.5 text-left transition-colors',
+        placement ? 'cursor-grab border-line-strong bg-surface-2 hover:border-accent active:cursor-grabbing' : 'border-dashed border-line bg-surface-1/40 text-fg-subtle hover:border-line-strong',
+        (placing || moving) && !selected && 'hover:border-accent hover:bg-accent-soft',
+        selected && 'ring-2 ring-accent ring-offset-2 ring-offset-canvas',
+        isDropTarget && 'border-accent bg-accent-soft',
+        isDragging && 'opacity-40',
+        disabled && 'opacity-50',
+      )}
+    >
+      <span className="font-mono text-[10px] leading-none text-fg-subtle">{placement && detail?.number ? `#${detail.number}` : index + 1}</span>
+      {placement ? (
+        <>
+          <span className="mt-auto line-clamp-2 text-xs font-medium leading-tight text-fg">{detail?.name ?? '…'}</span>
+          {detail && detail.variantPosition !== 0 ? <span className="truncate text-[10px] leading-tight text-fg-muted">{detail.variantName}</span> : null}
+        </>
+      ) : (
+        <span className="mt-auto text-[10px] leading-tight">{isDropTarget ? 'Drop here' : placing ? 'Place here' : moving ? 'Move here' : 'Empty'}</span>
+      )}
+    </button>
   )
 }

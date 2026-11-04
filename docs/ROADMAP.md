@@ -104,7 +104,7 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 
 No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set_requirements` under the existing RLS (D-018).
 
-## Phase 6 — Binder engine 🟡 (slice 1 delivered 2026-11-04; migration 0007 applied)
+## Phase 6 — Binder engine 🟡 (slices 1 and 2 delivered 2026-11-04; slice 2 browser pass pending)
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
@@ -117,11 +117,12 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Batched autosave (800 ms), Saving / Saved / Unsaved (n) / Failed + Retry; pending kept on failure; beforeunload guard | ✅ | `useBinderEditor.ts`; page test |
 | Undo for placement operations (inverse ops, multi-step, toast) | ✅ shared `hooks/useUndoStack` | |
 | Auto-layout: generate pages from a set in checklist order with page/empty-slot preview | ✅ `generate_binder_pages` RPC; appends, never overwrites | `GeneratePanel.tsx` |
-| Drag and drop (pointer) with touch support | ⬜ slice 2 — library still to pick (see D-019) | |
+| Drag and drop (pointer; long-press on touch): chip → slot/page, slot → slot (swap) / page tab (first empty slot), page tab → page tab (reorder) | ✅ `@dnd-kit/react` (D-020) | `dnd.ts`, `BinderDndProvider.tsx`, `domain/dnd.ts` (tests) |
 | Card images / placeholders in slots | ⬜ phase 9 (no image source yet) | |
-| Binder overview grid / zoom | ⬜ slice 2 | |
-| Manual card reorder in checklists (deferred from phase 3) | ⬜ with the drag library | |
-| Browser pass on the hosted project | ⬜ owner | |
+| Binder overview grid (thumbnails; click to open; drop targets) | ✅ | `BinderOverview.tsx` |
+| Zoom | ⬜ not needed yet; pages scale with the column width | |
+| Manual card reorder in checklists (deferred from phase 3) | ⬜ phase 7 — needs a per-set "manual order" mode first (D-020) | |
+| Browser pass on the hosted project | ✅ slice 1 (owner, 2026-11-04); ⬜ slice 2 drag gestures incl. touch | |
 
 ## Phase 7 — Dashboard, global search, bulk ops ⬜
 ## Phase 8 — Wishlist/trade, sharing, copy formats ⬜

@@ -10,6 +10,7 @@ import { listUserSets, setDisplayName, setKeys } from '@/features/sets/api'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 import { cn } from '@/lib/utils'
 import type { PrintingDetail } from './api'
+import { useDragSource } from './dnd'
 
 export type ArmedPrinting = { printingId: string; detail: PrintingDetail }
 
@@ -67,19 +68,7 @@ export function CardSourcePanel({ armed, onArm, placedCount }: Props) {
                   const isArmed = armed?.printingId === printingId
                   const placed = placedCount(printingId)
                   const detail: PrintingDetail = { id: printingId, cardId: card.id, name: card.name, number: card.number, setId: catalogSetId, variantName: v.name, variantPosition: v.position }
-                  return (
-                    <button
-                      key={v.id}
-                      type="button"
-                      aria-pressed={isArmed}
-                      aria-label={`${card.name} ${v.name}${placed > 0 ? `, placed ${placed}` : ''}`}
-                      onClick={() => onArm(isArmed ? null : { printingId, detail })}
-                      className={cn('inline-flex h-7 items-center gap-1 rounded-full border px-2 text-xs transition-colors', isArmed ? 'border-accent bg-accent text-accent-fg' : 'border-line text-fg-muted hover:border-line-strong hover:text-fg')}
-                    >
-                      {v.name}
-                      {placed > 0 ? <span className={cn('font-mono text-[10px]', isArmed ? 'text-accent-fg/80' : 'text-fg-subtle')}>×{placed}</span> : null}
-                    </button>
-                  )
+                  return <PrintingChip key={v.id} detail={detail} armed={isArmed} placed={placed} onClick={() => onArm(isArmed ? null : { printingId, detail })} />
                 })}
               </div>
             </li>
@@ -94,5 +83,23 @@ export function CardSourcePanel({ armed, onArm, placedCount }: Props) {
         </nav>
       ) : null}
     </div>
+  )
+}
+
+/** A variant chip: click arms it for the select→slot path; drag it straight onto a slot or page. */
+function PrintingChip({ detail, armed, placed, onClick }: { detail: PrintingDetail; armed: boolean; placed: number; onClick: () => void }) {
+  const { dragRef, isDragging } = useDragSource(`printing:${detail.id}`, { kind: 'printing', printingId: detail.id })
+  return (
+    <button
+      ref={dragRef}
+      type="button"
+      aria-pressed={armed}
+      aria-label={`${detail.name} ${detail.variantName}${placed > 0 ? `, placed ${placed}` : ''}`}
+      onClick={onClick}
+      className={cn('inline-flex h-7 cursor-grab items-center gap-1 rounded-full border px-2 text-xs transition-colors active:cursor-grabbing', armed ? 'border-accent bg-accent text-accent-fg' : 'border-line text-fg-muted hover:border-line-strong hover:text-fg', isDragging && 'opacity-40')}
+    >
+      {detail.variantName}
+      {placed > 0 ? <span className={cn('font-mono text-[10px]', armed ? 'text-accent-fg/80' : 'text-fg-subtle')}>×{placed}</span> : null}
+    </button>
   )
 }

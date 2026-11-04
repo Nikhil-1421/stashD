@@ -193,3 +193,23 @@ placements first and refuse to proceed if that flush fails.
 **Consequences.** A batch is two statements, not one transaction: a failure between them leaves
 upserts applied and deletes pending, which the retry completes. Undo is client-side and dies with
 the page. Slots show number / name / variant text only until an image source exists (phase 9).
+
+## D-020 · Drag and drop via `@dnd-kit/react` 0.5, confined to one adapter (2026-11-04)
+**Context.** D-019 left the library open. Checked on npm 2026-11-04: `@dnd-kit/core` 6.3.1 last
+published December 2024 (unmaintained, ~1 MB unpacked); `@atlaskit/pragmatic-drag-and-drop` 4.0
+maintained but built on the native HTML drag API (no touch drag on Android Chrome);
+`@dnd-kit/react` 0.5.3 published October 2026, peer `react ^18 || ^19`, ~240 kB unpacked, pointer
+sensor with a 250 ms long-press on touch (scrolling still works) and 5 px distance on mouse.
+**Decision.** Adopt `@dnd-kit/react`. All library calls live in `features/binders/dnd.ts`
+(`useDragSource`, `useDropTarget`) and `BinderDndProvider.tsx`; sources carry a `DragData`
+record and targets a `DropData` record, and a completed drag is resolved by the pure
+`domain/dnd.ts#resolveDrop` (tested) into a placement op or a page reorder. The library's keyboard
+sensor is disabled: slots already have a keyboard path (select → arrows → Enter) and the two would
+fight over Space/Enter. Drop targets: every slot (accepts chips and slots), every page tab and
+overview thumbnail (accepts chips, slots → first empty slot, pages → reorder).
+**Consequences.** A pre-1.0 dependency: the API surface we use is three hooks and one component,
+so a breaking release or a swap touches two files. jsdom cannot exercise pointer drags, so the
+resolution logic is unit-tested and the gesture itself is verified in the browser pass. Manual
+checklist reorder (phase 3 leftover) is *not* taken on here: cards are ordered by number first,
+so a drag reorder would need an explicit "manual order" mode per set, which is a phase 7 design
+question rather than a drag-library one.

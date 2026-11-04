@@ -24,6 +24,7 @@ export type BinderEditor = {
     duplicate: (pageId: string) => Promise<string>
     remove: (pageId: string) => Promise<void>
     move: (pageId: string, direction: -1 | 1) => Promise<void>
+    reorder: (pageIds: readonly string[]) => Promise<void>
     resize: (pageId: string, dims: Dimensions) => Promise<number>
     setLabel: (pageId: string, label: string) => Promise<void>
     generate: (printingIds: readonly string[], dims: Dimensions) => Promise<number>
@@ -199,6 +200,7 @@ export function useBinderEditor(binderId: string): BinderEditor {
         next[j] = pageId
         await reorderPages(binderId, next)
       }),
+    reorder: (ids) => run(() => reorderPages(binderId, ids)),
     resize: (pageId, dims) => run(() => resizePage(pageId, dims.rows, dims.columns)),
     setLabel: (pageId, label) => run(() => updatePageLabel(pageId, label)),
     generate: (printingIds, dims) => run(() => generatePages(binderId, printingIds, dims.rows, dims.columns)),

@@ -22,6 +22,7 @@
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
+    "@dnd-kit/react": "^0.5.3",
     "@supabase/supabase-js": "^2.118.0",
     "@tanstack/react-query": "^5.105.3",
     "class-variance-authority": "^0.7.1",

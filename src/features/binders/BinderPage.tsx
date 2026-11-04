@@ -13,9 +13,13 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { cn } from '@/lib/utils'
 import { binderKeys, deleteBinder, updateBinder, type BinderPage as BinderPageRow } from './api'
 import { BinderCanvas } from './BinderCanvas'
+import { BinderDndProvider } from './BinderDndProvider'
+import { BinderOverview } from './BinderOverview'
 import { BinderForm } from './BinderForm'
 import { printingLabel } from './binder-utils'
 import { CardSourcePanel, type ArmedPrinting } from './CardSourcePanel'
+import { useDragSource, useDropTarget } from './dnd'
+import { resolveDrop, type DragData, type DropData } from './domain/dnd'
 import { dimensionsLabel, LAYOUT_PRESETS, MAX_DIMENSION, MIN_DIMENSION, remapPlacements, slotCount, type Dimensions } from './domain/layout'
 import { pagePlacements, type Placement, type SlotRef } from './domain/placements'
 import { GeneratePanel } from './GeneratePanel'
@@ -43,6 +47,7 @@ export function BinderPage() {
   const [resizePreview, setResizePreview] = useState<ResizePreview | null>(null)
   const [editing, setEditing] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
+  const [view, setView] = useState<'page' | 'overview'>('page')
 
   const currentPlacements = useMemo(() => (currentPage ? pagePlacements(placements, currentPage.id) : new Map<number, Placement>()), [placements, currentPage])
   const detailIds = useMemo(() => {
@@ -123,6 +128,21 @@ export function BinderPage() {
     if (selected?.slotIndex === slotIndex && selected.pageId === currentPage.id) setSelected(null)
   }
 
+  function handleDrop(source: DragData, target: DropData) {
+    const outcome = resolveDrop(source, target, { placements, pages, describe: (id) => printingLabel(details.byId.get(id)) })
+    if (!outcome) return
+    if (outcome.type === 'reject') {
+      setNotice(outcome.reason)
+      return
+    }
+    setSelected(null)
+    if (outcome.type === 'op') {
+      editor.apply(outcome.op, outcome.label)
+      return
+    }
+    void runPageOp(() => editor.pageOps.reorder(outcome.pageIds))
+  }
+
   function requestResize(dims: Dimensions) {
     if (!currentPage) return
     if (dims.rows === currentPage.rows && dims.columns === currentPage.columns) return
@@ -165,7 +185,7 @@ export function BinderPage() {
   const defaults: Dimensions = { rows: binder.default_rows, columns: binder.default_columns }
 
   return (
-    <>
+    <BinderDndProvider onDrop={handleDrop}>
       <PageHeader
         title={binder.name}
         description={[binder.game_name, `${pages.length} ${pages.length === 1 ? 'page' : 'pages'}`, binder.description].filter(Boolean).join(' · ')}
@@ -211,20 +231,11 @@ export function BinderPage() {
           <div className="flex flex-wrap items-center gap-2">
             <div role="tablist" aria-label="Pages" className="flex max-w-full gap-1 overflow-x-auto scrollbar-thin">
               {pages.map((p, i) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={currentPage?.id === p.id}
-                  onClick={() => { setCurrentPageId(p.id); setSelected(null) }}
-                  className={cn('h-8 shrink-0 rounded-md border px-3 font-mono text-xs transition-colors', currentPage?.id === p.id ? 'border-line-strong bg-surface-3 text-fg' : 'border-line text-fg-muted hover:text-fg')}
-                  title={p.label ?? undefined}
-                >
-                  {i + 1}{p.label ? ` · ${p.label}` : ''}
-                </button>
+                <PageTab key={p.id} page={p} index={i} current={currentPage?.id === p.id && view === 'page'} disabled={editor.pageOps.pending} onSelect={() => { setCurrentPageId(p.id); setSelected(null); setView('page') }} />
               ))}
             </div>
-            <Button variant="secondary" size="sm" loading={editor.pageOps.pending} onClick={() => void runPageOp(editor.pageOps.add, (page) => setCurrentPageId((page as BinderPageRow).id))}>Add page</Button>
+            <Button variant="secondary" size="sm" loading={editor.pageOps.pending} onClick={() => void runPageOp(editor.pageOps.add, (page) => { setCurrentPageId((page as BinderPageRow).id); setView('page') })}>Add page</Button>
+            <Button variant={view === 'overview' ? 'primary' : 'secondary'} size="sm" aria-pressed={view === 'overview'} onClick={() => { setView((v) => (v === 'overview' ? 'page' : 'overview')); setSelected(null) }}>Overview</Button>
           </div>
 
           {armed ? (
@@ -243,7 +254,9 @@ export function BinderPage() {
             </div>
           ) : null}
 
-          {!currentPage ? (
+          {view === 'overview' ? (
+            <BinderOverview pages={pages} placements={placements} currentPageId={currentPage?.id ?? null} disabled={editor.pageOps.pending} onOpen={(id) => { setCurrentPageId(id); setView('page') }} />
+          ) : !currentPage ? (
             <div className="rounded-lg border border-dashed border-line-strong bg-surface-1 px-6 py-12 text-center">
               <p className="text-sm text-fg">This binder has no pages.</p>
               <p className="mt-1 text-sm text-fg-muted">Add a page, or generate pages from a set.</p>
@@ -279,14 +292,14 @@ export function BinderPage() {
               />
             </>
           )}
-          <p className="text-xs text-fg-subtle">Arrow keys move between slots · Enter places, selects or moves · Delete clears a slot · Esc cancels · ⌘Z undoes.</p>
+          <p className="text-xs text-fg-subtle">Drag cards onto slots or page tabs (long-press on touch) · Arrow keys move between slots · Enter places, selects or moves · Delete clears a slot · Esc cancels · ⌘Z undoes.</p>
         </section>
       </div>
 
       {editor.undo.visible && editor.undo.latest ? (
         <UndoToast label={editor.undo.latest.label} busy={editor.undo.busy} error={editor.undo.error} onUndo={() => void editor.undo.undo()} onDismiss={editor.undo.dismiss} onPause={editor.undo.pause} onResume={editor.undo.resume} />
       ) : null}
-    </>
+    </BinderDndProvider>
   )
 }
 
@@ -357,5 +370,26 @@ function PageTools({ page, index, total, pending, filled, onLabel, onResize, onM
         <InlineConfirm label="Delete page" confirmLabel="Delete page and its placements" pending={pending} onConfirm={onDelete} />
       </span>
     </div>
+  )
+}
+
+function PageTab({ page, index, current, disabled, onSelect }: { page: BinderPageRow; index: number; current: boolean; disabled: boolean; onSelect: () => void }) {
+  const { dragRef, isDragging } = useDragSource(`page:${page.id}`, { kind: 'page', pageId: page.id }, disabled)
+  const { dropRef, isDropTarget } = useDropTarget(`page-drop:${page.id}`, { kind: 'page', pageId: page.id }, ['printing', 'slot', 'page'], disabled)
+  return (
+    <button
+      ref={(el) => {
+        dragRef(el)
+        dropRef(el)
+      }}
+      type="button"
+      role="tab"
+      aria-selected={current}
+      onClick={onSelect}
+      className={cn('h-8 shrink-0 rounded-md border px-3 font-mono text-xs transition-colors', current ? 'border-line-strong bg-surface-3 text-fg' : 'border-line text-fg-muted hover:text-fg', isDropTarget && 'border-accent bg-accent-soft text-fg', isDragging && 'opacity-40')}
+      title={page.label ?? undefined}
+    >
+      {index + 1}{page.label ? ` · ${page.label}` : ''}
+    </button>
   )
 }

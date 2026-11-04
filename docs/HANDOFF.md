@@ -1,12 +1,12 @@
 # Handoff — read this first when resuming
 
 Compact state of the project for a returning session. Keep it current at every stopping point;
-it replaces re-reading the whole repo. Updated 2026-11-04 (phase 6 slice 1).
+it replaces re-reading the whole repo. Updated 2026-11-04 (phase 6 slice 2).
 
 ## What stashD is
 Universal trading-card collection tracker (React 19 + TS 7 + Vite 8 + Tailwind 4 + React Router 8
 + TanStack Query 5 + Supabase). Rules: `CLAUDE.md`. Brief: `prompts/IMPLEMENTATION_BRIEF.md`.
-Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-019:
+Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-020:
 `docs/DECISIONS.md`. Roadmap with per-phase status tables: `docs/ROADMAP.md`.
 
 ## Status by phase
@@ -17,7 +17,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 3 Checklist import (paste, CSV/TSV/JSON, mapping, review, transactional RPC) | ✅ verified in browser; XLSX deferred (D-016) |
 | 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; migration 0006 applied by owner via `db push` (2026-11-04); browser pass pending |
 | 5 Bubble Check (pill grid, filters, selection + bulk ops, keyboard, undo, clipboard) | ✅ code + tests; owner browser pass done 2026-11-04 (all good; large-set layout ideas parked in phase 7) |
-| 6 Binders | 🟡 slice 1 code + tests (2026-11-04): migration 0007 applied to hosted (anon denied on 3 tables, view, RPCs, verified over REST); select→slot editing, page tools, autosave, undo, auto-layout. Browser pass pending. Slice 2 = drag/drop + overview |
+| 6 Binders | 🟡 slice 1 ✅ (schema 0007 applied; select→slot editing, page tools, autosave, undo, auto-layout; owner browser pass OK). Slice 2 code + tests (drag/drop via `@dnd-kit/react`, overview grid); browser pass of drag gestures pending |
 | 7 Dashboard/search/bulk · 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
 ## Environment and workflow (the non-obvious parts)
@@ -42,17 +42,13 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Migration 0007 is applied (2026-11-04, pushed by me after approval; REST check: 401/42501 for
-   anon on binders, binder_pages, binder_placements, binder_overview, create_binder,
-   generate_binder_pages).
-2. Owner browser pass for phase 6 slice 1: create a binder (3×3), pick a set in the Cards panel,
-   arm a printing, click slots (repeat for copies), select a filled slot → click another to move /
-   swap, Remove, Duplicate, Delete key, undo toast + ⌘Z, watch the Saving/Saved indicator, add /
-   duplicate / move / delete pages, change layout with a shrink that drops cards (preview + confirm),
-   "Generate pages from a set", reload to confirm persistence. Phone width: panels collapse into
-   `<details>`.
-3. Phase 6 slice 2: pick the drag library with a touch spike (D-019), add pointer drag between slots
-   and from the panel, binder overview grid, then manual checklist reorder (phase 3 leftover).
+1. Owner browser pass for phase 6 slice 2: drag a chip from the Cards panel onto a slot and onto a
+   page tab; drag a filled slot onto another slot (swap) and onto a page tab (first empty slot,
+   "Page n is full" notice when full); drag a page tab onto another tab (reorder); Overview button
+   → thumbnails, click opens a page, drag a thumbnail to reorder, drop a chip on one. On the phone:
+   long-press (250 ms) starts a drag, a quick swipe still scrolls.
+2. Then phase 7 (dashboard, global search, bulk ops, parked Bubble Check large-set layout, manual
+   checklist order mode).
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
 - `src/components/ui/` hand-rolled primitives (Button, ButtonLink, Chip, Input, Select, Textarea,
@@ -76,8 +72,10 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   (`/binders/:id`: page strip, `BinderCanvas` slot grid, `CardSourcePanel`, `GeneratePanel`,
   `PageTools`, resize preview, save indicator), `useBinderEditor` (overlay + pending batch +
   autosave + page ops, flushes before structure changes), `usePrintingDetails` (cache-accumulating
-  lookup), `api.ts` (RPCs + `savePlacements` upsert/delete), pure `domain/layout.ts` (slot math,
-  presets, `remapPlacements`, `planPages`) and `domain/placements.ts` (`applyOp` with inverses).
+  lookup), `api.ts` (RPCs + `savePlacements` upsert/delete), `dnd.ts` + `BinderDndProvider.tsx`
+  (the only `@dnd-kit/react` imports), `BinderOverview.tsx`, pure `domain/layout.ts` (slot math,
+  presets, `remapPlacements`, `planPages`), `domain/placements.ts` (`applyOp` with inverses) and
+  `domain/dnd.ts` (`resolveDrop`: drag source + drop target → op / reorder / reject).
 - Shared: `hooks/useUndoStack.ts` + `components/ui/UndoToast.tsx` (used by Bubble Check and binders).
 - `src/features/catalog/domain` `cardNumberSortKey` (mirrors SQL), `slugify`.
 - `src/lib/env.ts` validated env union; `lib/supabase/client.ts` `getSupabase()`/`requireSupabase()`;
@@ -99,13 +97,13 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Paste auto-detect needs ≥80 % of lines to match a pattern; tests select the pattern explicitly.
 - plpgsql: prefix local variables (`v_slug`) — a bare `slug` was ambiguous with a column (fixed in 0005).
 
-## Next milestone: phase 6 slice 2 — drag and drop, then phase 7
-Choose the drag library (D-019 lists the candidates and the touch caveat; verify React 19 peer
-range and run a quick touch test on the owner's phone before adopting). Wire pointer drag from the
-Cards panel to slots and slot-to-slot (keep the select path as the accessible fallback), then the
-binder overview grid (all pages as thumbnails, click to jump) and manual checklist reorder. Then
-phase 7: dashboard, global search, bulk ops, the parked large-set Bubble Check layout work.
+## Next milestone: phase 7 — dashboard, global search, bulk ops
+Dashboard summary (sets, progress, missing quick access, recent binders), global search across
+sets/cards, bulk operations on the set page (selection model exists in Bubble Check), the parked
+Bubble Check large-set layout work (density setting, sticky toolbar + range jump links, remembered
+status filter), a per-set "manual order" mode so checklist drag reorder becomes meaningful, and
+per-set notes. Route-level code splitting is overdue (bundle ~860 kB) — do it at the start.
 
 ## Checks
-`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (131 tests
-in 29 files), Vite build (one ~810 kB chunk; splitting deferred to phase 10).
+`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (137 tests
+in 30 files), Vite build (one ~860 kB chunk; split by route at the start of phase 7).
