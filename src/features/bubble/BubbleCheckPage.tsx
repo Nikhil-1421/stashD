@@ -278,7 +278,7 @@ export function BubbleCheckPage() {
 
         {selecting || selected.size > 0 ? (
           <div role="toolbar" aria-label="Selection actions" className="flex flex-wrap items-center gap-2 rounded-lg border border-accent/30 bg-accent-soft px-4 py-2 text-sm">
-            <span className="font-medium text-fg">{selected.size} selected</span>
+            <span className="font-normal text-fg">{selected.size} selected</span>
             <Button variant="ghost" size="sm" disabled={visible.length === 0} onClick={() => setSelected(new Set(visible.map((b) => b.key)))}>Select all visible</Button>
             <Button variant="ghost" size="sm" disabled={selected.size === 0} onClick={clearSelection}>Clear</Button>
             <span className="ml-auto flex flex-wrap gap-2">
@@ -290,7 +290,7 @@ export function BubbleCheckPage() {
           </div>
         ) : null}
 
-        <div className="sticky top-14 z-10 -mx-1 space-y-2 border-b border-line bg-canvas/95 px-1 py-2 backdrop-blur">
+        <div className="sticky top-14 z-10 -mx-1 space-y-2 border-b border-line bg-canvas/85 px-1 py-2 backdrop-blur-md md:top-16">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div role="group" aria-label="Status" className="flex flex-wrap gap-1">
               {STATUS_FILTERS.map((f) => (

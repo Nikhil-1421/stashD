@@ -59,7 +59,7 @@ export function DashboardPage() {
             ['Binders', binders.isPending ? null : String(binders.data?.length ?? 0)],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-line bg-surface-1 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">{label}</dt>
+              <dt className="text-xs font-normal uppercase tracking-wide text-fg-subtle">{label}</dt>
               <dd className="mt-1 font-mono text-2xl text-fg">{value === null ? <Skeleton className="h-7 w-10" /> : value}</dd>
             </div>
           ))}
@@ -70,7 +70,7 @@ export function DashboardPage() {
       {recent.length > 0 ? (
         <section aria-labelledby="recent-heading" className="mb-6">
           <div className="mb-3 flex items-end justify-between">
-            <h2 id="recent-heading" className="text-base font-semibold text-fg">Recently updated sets</h2>
+            <h2 id="recent-heading" className="text-lg font-light text-fg">Recently updated sets</h2>
             <Link to="/sets" className="text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">All sets</Link>
           </div>
           <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,7 +85,7 @@ export function DashboardPage() {
       {setCount > 0 ? (
         <div className="mb-6 grid gap-5 lg:grid-cols-2">
           <section aria-labelledby="check-heading" className="rounded-lg border border-line bg-surface-1 p-5">
-            <h2 id="check-heading" className="text-base font-semibold text-fg">Keep checking</h2>
+            <h2 id="check-heading" className="text-lg font-light text-fg">Keep checking</h2>
             <p className="mt-1 text-sm text-fg-muted">Sets with the most printings still unowned (before your requirement rules).</p>
             {toCheck.length === 0 ? (
               <p className="mt-3 text-sm text-fg-muted">Every printing in your sets is owned. Nice.</p>
@@ -105,7 +105,7 @@ export function DashboardPage() {
           </section>
           <section aria-labelledby="binders-heading" className="rounded-lg border border-line bg-surface-1 p-5">
             <div className="flex items-end justify-between">
-              <h2 id="binders-heading" className="text-base font-semibold text-fg">Binders</h2>
+              <h2 id="binders-heading" className="text-lg font-light text-fg">Binders</h2>
               <Link to="/binders" className="text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">All binders</Link>
             </div>
             {binders.isPending ? (
@@ -141,7 +141,7 @@ export function DashboardPage() {
                   <li key={step.title} className="flex gap-3 rounded-md border border-line bg-surface-2 p-3">
                     <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line font-mono text-xs text-fg-muted" aria-hidden="true">{i + 1}</span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-fg">
+                      <p className="text-sm font-normal text-fg">
                         <Link to={step.to} className="underline-offset-4 hover:underline">{step.title}</Link>
                       </p>
                       <p className="text-sm text-fg-muted">{step.detail}</p>

@@ -10,7 +10,7 @@ export function CardHeader({ className, ...props }: ComponentPropsWithoutRef<'di
 }
 
 export function CardTitle({ className, ...props }: ComponentPropsWithoutRef<'h2'>) {
-  return <h2 className={cn('text-base font-semibold tracking-tight text-fg', className)} {...props} />
+  return <h2 className={cn('text-lg font-light tracking-tight text-fg', className)} {...props} />
 }
 
 export function CardDescription({ className, ...props }: ComponentPropsWithoutRef<'p'>) {

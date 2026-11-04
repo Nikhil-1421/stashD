@@ -61,7 +61,7 @@ export function BinderCanvas({ page, placements, details, selectedSlot, placing,
       role="group"
       aria-label={`Page ${page.page_order + 1}${page.label ? ` (${page.label})` : ''}, ${page.rows} by ${page.columns}`}
       onKeyDown={onKeyDown}
-      className="grid gap-2 rounded-lg border border-line bg-canvas p-3"
+      className="grid gap-2 rounded-lg border border-line bg-canvas/55 p-3"
       style={{ gridTemplateColumns: `repeat(${page.columns}, minmax(0, 1fr))` }}
     >
       {Array.from({ length: count }, (_, i) => (
@@ -130,7 +130,7 @@ function Slot({ pageId, index, placement, details, tabbable, selected, placing, 
       <span className="font-mono text-[10px] leading-none text-fg-subtle">{placement && detail?.number ? `#${detail.number}` : index + 1}</span>
       {placement ? (
         <>
-          <span className="mt-auto line-clamp-2 text-xs font-medium leading-tight text-fg">{detail?.name ?? '…'}</span>
+          <span className="mt-auto line-clamp-2 text-xs font-normal leading-tight text-fg">{detail?.name ?? '…'}</span>
           {detail && detail.variantPosition !== 0 ? <span className="truncate text-[10px] leading-tight text-fg-muted">{detail.variantName}</span> : null}
         </>
       ) : (

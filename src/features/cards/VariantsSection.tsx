@@ -54,7 +54,7 @@ export function VariantsSection({ setId, editable, variants, requirements }: Pro
   return (
     <section aria-labelledby="variants-heading" className="rounded-lg border border-line bg-surface-1">
       <div className="border-b border-line px-5 py-4">
-        <h2 id="variants-heading" className="text-base font-semibold text-fg">Variants</h2>
+        <h2 id="variants-heading" className="text-lg font-light text-fg">Variants</h2>
         <p className="mt-0.5 text-sm text-fg-muted">
           The printings a card can come in (base, reverse holo, 1st edition…). Each one becomes a column in the checklist. Untick "Counts" for variants you do not collect.
         </p>
@@ -71,8 +71,8 @@ export function VariantsSection({ setId, editable, variants, requirements }: Pro
             {variants.data.map((v) => (
               <li key={v.id} className="flex flex-wrap items-center gap-3 py-2.5">
                 <span className="min-w-0 flex-1">
-                  <span className="text-sm font-medium text-fg">{v.name}</span>
-                  <span className="ml-2 rounded-sm border border-line px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-fg-subtle">{v.category}</span>
+                  <span className="text-sm font-normal text-fg">{v.name}</span>
+                  <span className="ml-2 rounded-sm border border-line px-1.5 py-px text-[10px] font-normal uppercase tracking-wide text-fg-subtle">{v.category}</span>
                 </span>
                 <label className="flex items-center gap-2 text-sm text-fg-muted">
                   <input

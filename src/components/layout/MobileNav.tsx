@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils'
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'flex min-h-14 flex-1 flex-col items-center justify-center gap-1 px-1 text-[11px] font-medium transition-colors',
-    isActive ? 'text-fg' : 'text-fg-subtle hover:text-fg-muted',
+    'flex min-h-14 flex-1 flex-col items-center justify-center gap-1 px-1 text-[11px] font-normal transition-colors',
+    isActive ? 'text-fg [&>svg]:text-accent' : 'text-fg-subtle hover:text-fg-muted',
   )
 
 /** Compact bottom bar for small screens; 44px+ touch targets; secondary items live under "More". */
@@ -15,7 +15,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-surface-1/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-canvas/85 backdrop-blur-md md:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {primary.map((item) => {

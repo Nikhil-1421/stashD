@@ -1,43 +1,73 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — the single source of truth for color, type and radius.
+ * Space Grotesk (SIL Open Font License, see src/assets/fonts/OFL.txt). Brand rule: Light 300 for
+ * the wordmark and headings, Regular 400 for body, buttons, labels and anything under 14 px.
+ * Only these two weights ship, so no other weight may be requested (font-synthesis is off).
+ */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/SpaceGrotesk-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("../assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Design tokens — the single source of truth for color, type and radius, taken from the stashD
+ * brand kit (stashD-brand-kit/04-colors, brand guide §04–05; docs/UI_UX_SPEC.md).
  * Tailwind 4 turns every --color-* here into utilities (bg-canvas, text-fg-muted, border-line …).
- * Values come from docs/UI_UX_SPEC.md.
+ * Surfaces are Stash Ink with a little transparency so the starfield reads faintly through them.
  */
 @theme {
-  --color-canvas: #0b0d10;
-  --color-surface-1: #12151a;
-  --color-surface-2: #191d24;
-  --color-surface-3: #20252d;
+  /* Black "galaxy" ground behind everything; the starfield canvas paints on top of it. */
+  --color-canvas: #050609;
+  /* Stash Ink #111218 and two lifted steps of it. */
+  --color-surface-1: rgb(17 18 24 / 0.8);
+  --color-surface-2: rgb(27 29 38 / 0.86);
+  --color-surface-3: rgb(38 40 52 / 0.92);
+  /* Opaque ink for native controls whose popups cannot blend (select menus). */
+  --color-surface-solid: #111218;
 
-  --color-fg: #f1f3f5;
-  --color-fg-muted: #929ba8;
-  --color-fg-subtle: #68717d;
+  --color-fg: #ffffff;
+  --color-fg-muted: #8e92a0; /* Mist: 6.0:1 on ink */
+  --color-fg-subtle: #767a89; /* 4.5:1 on ink */
 
-  --color-line: #272d36;
-  --color-line-strong: #343c47;
+  --color-line: rgb(142 146 160 / 0.2);
+  --color-line-strong: rgb(212 175 55 / 0.45);
 
-  --color-accent: #5b8def;
-  --color-accent-hover: #74a0f4;
-  --color-accent-fg: #0b0d10;
-  --color-accent-soft: rgb(91 141 239 / 0.14);
+  /* Metallic Gold; ink text on gold is 8.9:1. */
+  --color-accent: #d4af37;
+  --color-accent-hover: #e3c86e;
+  --color-accent-fg: #111218;
+  --color-accent-soft: rgb(212 175 55 / 0.14);
 
-  --color-success: #3fb68b;
-  --color-success-soft: rgb(63 182 139 / 0.14);
-  --color-warning: #e0a542;
-  --color-warning-soft: rgb(224 165 66 / 0.14);
-  --color-danger: #e25d6a;
-  --color-danger-soft: rgb(226 93 106 / 0.14);
+  --color-success: #4cc38a;
+  --color-success-soft: rgb(76 195 138 / 0.14);
+  --color-warning: #e8894a;
+  --color-warning-soft: rgb(232 137 74 / 0.14);
+  --color-danger: #e5616f;
+  --color-danger-soft: rgb(229 97 111 / 0.14);
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* One family throughout: "mono" contexts (card numbers, counts) use tabular figures instead. */
+  --font-mono: "Space Grotesk", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  --shadow-elevated: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-elevated: 0 8px 24px rgb(0 0 0 / 0.55);
+
+  /* The brand's metallic gold: a soft 135° gradient with one narrow highlight. */
+  --gradient-gold: linear-gradient(135deg, #ba972e 0%, #d4af37 42%, #e3c86e 52%, #d4af37 62%, #ba972e 100%);
 }
 
 @layer base {
@@ -46,15 +76,38 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* The ground sits on <html> so the fixed starfield canvas (z-index -1) shows through <body>. */
+    background-color: var(--color-canvas);
+    background-image: radial-gradient(ellipse 90% 55% at 50% -15%, rgb(212 175 55 / 0.06), transparent 70%);
+    background-attachment: fixed;
   }
 
   body {
-    @apply bg-canvas text-fg font-sans text-[15px] leading-6;
+    @apply text-fg font-sans text-[15px] leading-6 font-normal;
+    background: transparent;
     min-height: 100dvh;
+    font-synthesis: none;
+  }
+
+  h1,
+  h2 {
+    font-weight: 300;
+  }
+
+  .font-mono,
+  code,
+  kbd {
+    font-variant-numeric: tabular-nums;
+  }
+
+  option,
+  optgroup {
+    background-color: var(--color-surface-solid);
+    color: var(--color-fg);
   }
 
   ::selection {
-    background: var(--color-accent-soft);
+    background: rgb(212 175 55 / 0.3);
   }
 
   /* One consistent, high-contrast focus ring for every interactive element. */
@@ -79,4 +132,18 @@
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line-strong) transparent;
+}
+
+/* Key actions and the gold card: the brand gradient, never an added glow. */
+@utility bg-gold-gradient {
+  background-image: var(--gradient-gold);
+}
+
+/* Brand caption style: Regular, 11 px, uppercase, tracked. */
+@utility text-caption {
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }

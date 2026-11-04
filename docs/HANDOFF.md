@@ -6,7 +6,7 @@ it replaces re-reading the whole repo. Updated 2026-11-04 (phase 6 slice 2).
 ## What stashD is
 Universal trading-card collection tracker (React 19 + TS 7 + Vite 8 + Tailwind 4 + React Router 8
 + TanStack Query 5 + Supabase). Rules: `CLAUDE.md`. Brief: `prompts/IMPLEMENTATION_BRIEF.md`.
-Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-022:
+Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-023:
 `docs/DECISIONS.md`. Roadmap with per-phase status tables: `docs/ROADMAP.md`.
 
 ## Status by phase
@@ -40,16 +40,26 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   Commit messages: use `-F -` with a heredoc; avoid double quotes inside `-m "..."` (zsh).
 - zsh: `status` is read-only (use `rc`); no `timeout` binary; `pipestatus` lowercase.
 - Email confirmations are on; the built-in sender is rate-limited (few/hour). Owner chose to wait.
-- Brand kit (logo, colours, fonts) is pending from the owner; placeholder lives in
-  `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
+- Brand kit applied 2026-11-04 (D-023, `docs/UI_UX_SPEC.md`): source in `stashD-brand-kit/`
+  (untracked, 13 MB — owner to decide whether to commit it); in use: `src/assets/fonts` (Space
+  Grotesk Light + Regular only → never `font-medium`/`font-semibold`), `src/assets/brand` (lockup,
+  D card), `public/` favicons + manifest + share image, tokens in `src/styles/index.css`,
+  `components/layout/Starfield.tsx` + `starfield-model.ts`, `BrandMark.tsx` (`variant`, `width`).
+- Visual checks without a login: headless Chrome is installed
+  (`/Applications/Google Chrome.app`); `--headless=new --window-size=1440,1000
+  --virtual-time-budget=6000 --screenshot=out.png URL`. Minimum window width is 500 px, so a
+  "390 px" shot is a crop, not a layout. For signed-in screens, write a throwaway `preview.html` +
+  harness that mounts real components with fake data, shoot it, delete it.
 
 ## Pending right now
-1. Owner browser pass for phases 7 and 8. Phase 8 needs two accounts (or a second email): account A
-   publishes a custom set (set page → Checklist Library → Published); account B opens Checklist
-   Library, previews it, "Add to my collection" (progress private), then "Copy as my own" (editable
-   fork); A unpublishes and B still sees the tracked set; B "Remove from my collection".
-2. Next: phase 9 catalog adapters (TCGdex / Scryfall / YGOPRODeck) behind the provider interface,
-   image sources, then phase 10 export/backup, hardening, Playwright, deployment.
+1. **Owner review of the brand pass** (colours, type, logo placement, starfield speed/density,
+   box translucency). Knobs: `SPEED` and twinkle in `Starfield.tsx`, `starCount()` and `FIELD` in
+   `starfield-model.ts`, surface alphas and golds in `src/styles/index.css`.
+2. After that review the owner wants to **revisit phase 7** (ask what specifically; the phase 7 and
+   8 browser passes are also still outstanding — phase 8 needs two accounts).
+3. New **phase 9: curated set catalog via bulk upload** (see ROADMAP) — design first, ask the
+   open questions listed there. Catalog adapters are now phase 10, export/hardening phase 11.
+4. Decide whether to commit `stashD-brand-kit/` (13 MB of source artwork) to the repo.
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
 - `src/components/ui/` hand-rolled primitives (Button, ButtonLink, Chip, Input, Select, Textarea,
@@ -104,18 +114,19 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Bulk writes: PostgREST upsert sends only the columns in the payload, so a quantity-only upsert
   keeps condition/notes. The grid in jsdom measures 0 px wide → 1 column; End = same pill, use
   Ctrl+End in tests.
+- StrictMode double-mount: an effect cleanup that cancels a rAF/timer held in a ref must also reset
+  the ref, or the second mount thinks work is still scheduled (this left the Bubble grid one column
+  wide in dev only; production was fine).
 - Paste auto-detect needs ≥80 % of lines to match a pattern; tests select the pattern explicitly.
 - plpgsql: prefix local variables (`v_slug`) — a bare `slug` was ambiguous with a column (fixed in 0005).
 
-## Next milestone: phase 9 — catalog adapters and images
-Provider interface in `features/catalog/providers/<name>.ts` (search sets/cards, get set, variants,
-image URLs, checklist import) with TCGdex first (Pokémon, permissive terms), then Scryfall (MTG) and
-YGOPRODeck. Provider sets are `owner_id null` rows with `provider_id` + `provider_set_id`; ingestion
-runs through a SECURITY DEFINER RPC or an edge function (decide; document terms/attribution in
-`docs/CARD_DATA_SOURCES.md`). Images: provider URLs with attribution, lazy loading, placeholders;
-user uploads to a private bucket. Outages must not break manual sets (invariant 10).
+## Next milestone: owner's call after the brand review
+Order the owner gave on 2026-11-04: brand pass (done, awaiting review) → revisit phase 7 → then the
+new phase 9 curated catalog (bulk upload of sets for collectors to choose from). Phase 10 catalog
+adapters (TCGdex / Scryfall / YGOPRODeck behind `features/catalog/providers/<name>.ts`, provider
+sets as `owner_id null` rows, images with attribution) and phase 11 export/backup/hardening follow.
 
 ## Checks
-`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (147 tests
-in 34 files), Vite build (lazy route
+`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (152 tests
+in 35 files), Vite build (lazy route
 chunks + react/supabase/query/dnd/vendor chunks; first screen ≈ 210 kB gzip, mostly vendor).

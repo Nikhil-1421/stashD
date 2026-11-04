@@ -72,7 +72,7 @@ function LibraryTile({ entry, trackedUserSetId, isPublisher }: { entry: LibraryE
   const year = entry.release_date ? entry.release_date.slice(0, 4) : null
   return (
     <article className="flex h-full flex-col rounded-lg border border-line bg-surface-1 p-4">
-      <Link to={`/checklists/${entry.id}`} className="text-sm font-semibold text-fg underline-offset-4 hover:underline">{entry.name}</Link>
+      <Link to={`/checklists/${entry.id}`} className="text-sm font-normal text-fg underline-offset-4 hover:underline">{entry.name}</Link>
       <p className="mt-0.5 truncate text-xs text-fg-muted">{[entry.game_name, entry.set_code, year].filter(Boolean).join(' · ') || 'No game assigned'}</p>
       <p className="mt-2 font-mono text-xs text-fg-subtle">
         {entry.card_count} {entry.card_count === 1 ? 'card' : 'cards'} · {entry.variant_count} {entry.variant_count === 1 ? 'variant' : 'variants'} · {entry.tracker_count} {entry.tracker_count === 1 ? 'collector' : 'collectors'}

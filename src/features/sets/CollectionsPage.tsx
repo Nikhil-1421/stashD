@@ -98,7 +98,7 @@ export function SetTile({ set }: { set: UserSetOverview }) {
       to={`/sets/${set.id}`}
       className="block rounded-lg border border-line bg-surface-1 p-4 transition-colors hover:border-line-strong hover:bg-surface-2"
     >
-      <p className="truncate text-sm font-semibold text-fg">{setDisplayName(set)}</p>
+      <p className="truncate text-sm font-normal text-fg">{setDisplayName(set)}</p>
       <p className="mt-0.5 truncate text-xs text-fg-muted">
         {[set.game_name, set.set_code, year].filter(Boolean).join(' · ') || 'No game assigned'}
       </p>

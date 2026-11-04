@@ -63,7 +63,7 @@ export function BindersPage() {
 function BinderTile({ binder }: { binder: BinderOverview }) {
   return (
     <Link to={`/binders/${binder.id}`} className="block rounded-lg border border-line bg-surface-1 p-4 transition-colors hover:border-line-strong hover:bg-surface-2">
-      <p className="truncate text-sm font-semibold text-fg">{binder.name}</p>
+      <p className="truncate text-sm font-normal text-fg">{binder.name}</p>
       <p className="mt-0.5 truncate text-xs text-fg-muted">{[binder.game_name, dimensionsLabel({ rows: binder.default_rows, columns: binder.default_columns })].filter(Boolean).join(' · ')}</p>
       <p className="mt-3 font-mono text-xs text-fg-subtle">
         {binder.page_count} {binder.page_count === 1 ? 'page' : 'pages'} · {binder.placement_count}/{binder.slot_count} slots filled

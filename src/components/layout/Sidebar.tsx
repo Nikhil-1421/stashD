@@ -13,8 +13,8 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
         collapsed ? 'w-16' : 'w-60',
       )}
     >
-      <div className={cn('flex h-14 items-center border-b border-line', collapsed ? 'justify-center px-0' : 'gap-2 px-4')}>
-        <BrandMark showName={!collapsed} to={null} />
+      <div className={cn('flex h-16 items-center border-b border-line', collapsed ? 'justify-center px-0' : 'px-4')}>
+        <BrandMark variant={collapsed ? 'icon' : 'lockup'} to={null} />
       </div>
 
       <nav className="flex-1 overflow-y-auto scrollbar-thin px-2 py-3">
@@ -30,7 +30,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                   className={({ isActive }) =>
                     cn(
                       'flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors',
-                      isActive ? 'bg-surface-3 text-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+                      isActive ? 'bg-surface-3 text-fg [&>svg]:text-accent' : 'text-fg-muted hover:bg-surface-2 hover:text-fg',
                       collapsed && 'justify-center px-0',
                     )
                   }
@@ -40,7 +40,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
                     <>
                       <span className="truncate">{item.label}</span>
                       {item.status === 'planned' ? (
-                        <span className="ml-auto rounded-sm border border-line px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-fg-subtle">
+                        <span className="ml-auto rounded-sm border border-line px-1.5 py-px text-[10px] font-normal uppercase tracking-wide text-fg-subtle">
                           Planned
                         </span>
                       ) : null}

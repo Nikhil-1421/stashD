@@ -262,7 +262,7 @@ function MapStep({ file, hasHeader, mapping, onHeader, onMapping, onBack, onNext
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-fg-subtle">
               {headerRow.map((h, column) => (
-                <th key={column} scope="col" className="min-w-40 px-3 py-2 font-medium">
+                <th key={column} scope="col" className="min-w-40 px-3 py-2 font-normal">
                   <span className="mb-1 block truncate normal-case text-fg" title={h}>{h || `Column ${column + 1}`}</span>
                   <Select aria-label={`Field for ${h || `column ${column + 1}`}`} value={mapping[column] ?? 'ignore'} onChange={(e) => setField(column, e.target.value as ImportField)} className="h-8 text-sm">
                     {IMPORT_FIELDS.map((f) => (
@@ -342,7 +342,7 @@ function ReviewStep({ catalogSetId, rows, unparsed, strategy, onStrategy, onBack
                 <label key={s.value} className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 text-sm has-checked:border-accent">
                   <input type="radio" name="strategy" value={s.value} className="mt-0.5 size-4 accent-accent" checked={strategy === s.value} onChange={() => onStrategy(s.value)} />
                   <span>
-                    <span className="block font-medium text-fg">{s.label}</span>
+                    <span className="block font-normal text-fg">{s.label}</span>
                     <span className="block text-fg-muted">{s.description}</span>
                   </span>
                 </label>
@@ -378,11 +378,11 @@ function ReviewStep({ catalogSetId, rows, unparsed, strategy, onStrategy, onBack
           </caption>
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-fg-subtle">
-              <th scope="col" className="w-24 px-3 py-2 font-medium">#</th>
-              <th scope="col" className="px-3 py-2 font-medium">Name</th>
-              <th scope="col" className="w-28 px-3 py-2 font-medium">Rarity</th>
-              <th scope="col" className="px-3 py-2 font-medium">Printings</th>
-              <th scope="col" className="w-36 px-3 py-2 font-medium">Status</th>
+              <th scope="col" className="w-24 px-3 py-2 font-normal">#</th>
+              <th scope="col" className="px-3 py-2 font-normal">Name</th>
+              <th scope="col" className="w-28 px-3 py-2 font-normal">Rarity</th>
+              <th scope="col" className="px-3 py-2 font-normal">Printings</th>
+              <th scope="col" className="w-36 px-3 py-2 font-normal">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -415,7 +415,7 @@ function Stat({ label, value, tone }: { label: string; value: number; tone?: 'wa
   return (
     <div className="rounded-lg border border-line bg-surface-1 px-4 py-3">
       <dt className="text-xs uppercase tracking-wide text-fg-subtle">{label}</dt>
-      <dd className={cn('mt-1 text-xl font-semibold', tone === 'warning' && value > 0 ? 'text-warning' : 'text-fg')}>{value}</dd>
+      <dd className={cn('mt-1 text-xl font-light', tone === 'warning' && value > 0 ? 'text-warning' : 'text-fg')}>{value}</dd>
     </div>
   )
 }

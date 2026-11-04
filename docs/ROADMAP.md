@@ -149,5 +149,19 @@ Checklist Library (publish / browse / track / copy).
 | Owner deleting a published set warns about other collectors | ✅ | `SetDetailPage.tsx` |
 | Wishlist / trade status | ⬜ parked by owner | |
 | Public share links (`collection_shares`) | ⬜ parked by owner | |
-## Phase 9 — Catalog adapters / image sources ⬜ (TCGdex, Scryfall, YGOPRODeck first)
-## Phase 10 — Export/backup, hardening, accessibility, deployment ⬜
+## Brand pass ✅ code + checks (2026-11-04); owner review pending
+Brand kit applied across the app (D-023): Space Grotesk Light/Regular, Stash Ink + Metallic Gold
+tokens, gold-gradient primary button, kit logo/lockup/D-card, favicons + manifest + share image,
+starfield background, slightly translucent surfaces. Verified with headless-Chrome screenshots of
+the shell, components and login at desktop and phone widths. Also fixed here: Bubble Check grid
+stayed one column wide in dev (StrictMode) because its measurement effect kept a stale frame handle.
+
+## Phase 9 — Curated set catalog (bulk upload) ⬜ (owner request 2026-11-04)
+Bulk-upload many sets so collectors can browse and pick from a ready-made catalog instead of
+building each checklist. To design: who may upload (owner/admin only), the bulk format (reuse the
+import pipeline: one file per set, or a manifest), how curated sets are owned (a "stashD curated"
+provider row so they are `owner_id null` and readable by everyone, vs. published custom sets), how
+they surface (Checklist Library with a Curated filter), licensing of names/numbers/images per source.
+
+## Phase 10 — Catalog adapters / image sources ⬜ (TCGdex, Scryfall, YGOPRODeck first)
+## Phase 11 — Export/backup, hardening, accessibility, deployment ⬜

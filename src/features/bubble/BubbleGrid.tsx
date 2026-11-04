@@ -62,7 +62,10 @@ export function BubbleGrid({ bubbles, selected, selecting, pending, disabled, ge
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule)
     observer?.observe(el)
     return () => {
+      // Reset the handle too: under StrictMode the effect mounts twice, and a stale non-zero
+      // handle would make every later schedule() a no-op (the grid would stay one column wide).
       if (frame.current !== 0) window.cancelAnimationFrame(frame.current)
+      frame.current = 0
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('resize', schedule)
       observer?.disconnect()
@@ -116,7 +119,7 @@ export function BubbleGrid({ bubbles, selected, selecting, pending, disabled, ge
     (row: number, align: 'top' | 'center') => {
       const rect = ref.current?.getBoundingClientRect()
       if (!rect) return
-      const offset = align === 'top' ? 64 : viewportHeight / 2
+      const offset = align === 'top' ? 132 : viewportHeight / 2
       window.scrollTo({ top: window.scrollY + rect.top + row * rowHeight - offset })
     },
     [rowHeight, viewportHeight],

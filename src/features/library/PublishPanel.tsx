@@ -20,7 +20,7 @@ export function PublishPanel({ set }: { set: UserSetOverview }) {
     <section aria-labelledby="publish-heading" className="rounded-lg border border-line bg-surface-1 px-5 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 id="publish-heading" className="text-base font-semibold text-fg">Checklist Library</h2>
+          <h2 id="publish-heading" className="text-lg font-light text-fg">Checklist Library</h2>
           <p className="mt-0.5 text-sm text-fg-muted">
             {set.visibility === 'public'
               ? `Published. Any signed-in collector can add or copy this checklist. ${others} ${others === 1 ? 'other collector has' : 'other collectors have'} added it; their progress stays private to them.`

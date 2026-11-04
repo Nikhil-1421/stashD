@@ -54,7 +54,7 @@ export function SearchPage() {
 
           {setHits.length > 0 ? (
             <section aria-labelledby="hits-sets">
-              <h2 id="hits-sets" className="mb-2 text-sm font-semibold text-fg">Sets <span className="font-mono text-xs text-fg-subtle">{setHits.length}</span></h2>
+              <h2 id="hits-sets" className="mb-2 text-sm font-normal text-fg">Sets <span className="font-mono text-xs text-fg-subtle">{setHits.length}</span></h2>
               <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface-1">
                 {setHits.map((s) => (
                   <li key={s.id}>
@@ -70,7 +70,7 @@ export function SearchPage() {
 
           {binderHits.length > 0 ? (
             <section aria-labelledby="hits-binders">
-              <h2 id="hits-binders" className="mb-2 text-sm font-semibold text-fg">Binders <span className="font-mono text-xs text-fg-subtle">{binderHits.length}</span></h2>
+              <h2 id="hits-binders" className="mb-2 text-sm font-normal text-fg">Binders <span className="font-mono text-xs text-fg-subtle">{binderHits.length}</span></h2>
               <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface-1">
                 {binderHits.map((b) => (
                   <li key={b.id}>
@@ -85,7 +85,7 @@ export function SearchPage() {
           ) : null}
 
           <section aria-labelledby="hits-cards">
-            <h2 id="hits-cards" className="mb-2 text-sm font-semibold text-fg">
+            <h2 id="hits-cards" className="mb-2 text-sm font-normal text-fg">
               Cards {cards.isSuccess ? <span className="font-mono text-xs text-fg-subtle">{cards.data.length}{cards.data.length >= SEARCH_LIMIT ? '+' : ''}</span> : null}
             </h2>
             {cards.isPending && sets.isSuccess ? (

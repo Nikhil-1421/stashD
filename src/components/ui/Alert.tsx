@@ -23,7 +23,7 @@ export function Alert({ tone = 'info', title, children, className }: AlertProps)
     <div role={tone === 'danger' || tone === 'warning' ? 'alert' : 'status'} className={cn('flex gap-3 rounded-md border p-3 text-sm', t.box, className)}>
       <Icon className={cn('mt-0.5 size-4 shrink-0', t.iconClass)} aria-hidden="true" />
       <div className="min-w-0 space-y-1">
-        {title ? <p className="font-medium">{title}</p> : null}
+        {title ? <p className="font-normal">{title}</p> : null}
         {children ? <div className="text-fg-muted">{children}</div> : null}
       </div>
     </div>

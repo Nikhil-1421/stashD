@@ -42,8 +42,8 @@ export function TopBar() {
   })
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b border-line bg-canvas/90 px-4 backdrop-blur md:px-6">
-      <BrandMark className="md:hidden" />
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 border-b border-line bg-canvas/80 px-4 backdrop-blur-md md:h-16 md:px-6">
+      <BrandMark variant="icon" className="md:hidden" />
       <form role="search" onSubmit={submitSearch} className="hidden max-w-sm flex-1 md:block">
         <label className="relative block">
           <span className="sr-only">Search sets, binders and cards</span>

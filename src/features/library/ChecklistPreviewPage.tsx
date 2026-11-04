@@ -48,7 +48,7 @@ export function ChecklistPreviewPage() {
       <section aria-labelledby="preview-heading" className="rounded-lg border border-line bg-surface-1">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line px-5 py-4">
           <div>
-            <h2 id="preview-heading" className="text-base font-semibold text-fg">Checklist</h2>
+            <h2 id="preview-heading" className="text-lg font-light text-fg">Checklist</h2>
             <p className="mt-0.5 text-sm text-fg-muted">{e.card_count} {e.card_count === 1 ? 'card' : 'cards'}, {e.variant_count} {e.variant_count === 1 ? 'variant' : 'variants'}. A tick means the card exists in that variant.</p>
           </div>
           <Input type="search" aria-label="Search cards" placeholder="Search name or number…" value={search} onChange={(ev) => { setSearch(ev.target.value); setPage(0) }} className="w-56" />
@@ -64,10 +64,10 @@ export function ChecklistPreviewPage() {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-fg-subtle">
-                  <th scope="col" className="w-24 py-2 pr-3 font-medium">#</th>
-                  <th scope="col" className="py-2 pr-3 font-medium">Name</th>
-                  <th scope="col" className="w-32 py-2 pr-3 font-medium">Rarity</th>
-                  {(variants.data ?? []).map((v) => <th key={v.id} scope="col" className="w-16 py-2 pr-2 text-center font-medium" title={v.name}><span className="block truncate">{v.name}</span></th>)}
+                  <th scope="col" className="w-24 py-2 pr-3 font-normal">#</th>
+                  <th scope="col" className="py-2 pr-3 font-normal">Name</th>
+                  <th scope="col" className="w-32 py-2 pr-3 font-normal">Rarity</th>
+                  {(variants.data ?? []).map((v) => <th key={v.id} scope="col" className="w-16 py-2 pr-2 text-center font-normal" title={v.name}><span className="block truncate">{v.name}</span></th>)}
                 </tr>
               </thead>
               <tbody>

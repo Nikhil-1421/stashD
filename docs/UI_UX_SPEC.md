@@ -2,17 +2,35 @@
 
 ## Brand and feel
 Minimal, premium, dark, calm, collector-focused. Dense enough for large checklists, spacious enough for binder visuals.
+The brand is **stashD** (always written that way). Source of truth: `stashD-brand-kit/` and its
+`stashD-brand-guide.pdf` (v1, November 2026). Applied 2026-11-04 (D-023).
 
-## Tokens
-- `--bg: #0B0D10`
-- `--surface-1: #12151A`
-- `--surface-2: #191D24`
-- `--surface-3: #20252D`
-- `--text: #F1F3F5`
-- `--text-muted: #929BA8`
-- `--text-subtle: #68717D`
-- `--border: #272D36`
-- Accent: restrained blue/violet/teal with semantic success/warning/error colors.
+- **Logo.** Horizontal lockup on dark (fanned hand + gold wordmark) in the expanded sidebar and on
+  auth pages, never under 160 px wide; the gold D card (the kit's favicon artwork) in the collapsed
+  sidebar and the mobile top bar. Artwork files are used as-is: no stretching, rotating, retyping,
+  glow or shadow. The logo always sits on an ink panel, never straight on the starfield.
+- **Type.** Space Grotesk, self-hosted (`src/assets/fonts`, OFL). Light 300 for headings and the
+  wordmark; Regular 400 for body, buttons, labels and anything under 14 px. No other weights ship
+  (`font-synthesis: none`), so never use `font-medium`/`font-semibold`/`font-bold`. Captions are
+  Regular 11 px, uppercase, tracked (`text-caption`). Numbers use the same family with tabular figures.
+- **Gold.** Flat `#D4AF37` for accents, borders on hover/active, progress and focus rings; the 135°
+  gradient (`bg-gold-gradient`) only for the primary button. Ink text on gold (8.9:1). No gold text
+  on light surfaces.
+- **Background.** `Starfield` (`components/layout`): a fixed canvas behind every page, a slow
+  forward flight through a black field of brand-gold points with slight sway and twinkle. ~16 depth
+  units/s, 30 fps cap, paused when the tab is hidden, a single still frame under
+  `prefers-reduced-motion`. Decorative only (`aria-hidden`, no pointer events).
+- **Surfaces.** Stash Ink at 80–92 % opacity so stars read faintly through boxes; sticky bars use
+  the canvas colour at 80–85 % with a backdrop blur. Native select menus use opaque ink.
+
+## Tokens (`src/styles/index.css`)
+- `--color-canvas: #050609` (black ground under the starfield)
+- `--color-surface-1: rgb(17 18 24 / 0.8)` (Stash Ink) · `surface-2: rgb(27 29 38 / 0.86)` · `surface-3: rgb(38 40 52 / 0.92)` · `surface-solid: #111218`
+- `--color-fg: #FFFFFF` · `fg-muted: #8E92A0` (Mist, 6.0:1) · `fg-subtle: #767A89` (4.5:1)
+- `--color-line: rgb(142 146 160 / 0.2)` · `line-strong: rgb(212 175 55 / 0.45)` (gold hairline on hover/active)
+- `--color-accent: #D4AF37` · `accent-hover: #E3C86E` · `accent-fg: #111218` · `accent-soft: rgb(212 175 55 / 0.14)`
+- Semantic: success `#4CC38A`, warning `#E8894A` (orange, kept apart from gold), danger `#E5616F`
+- `--gradient-gold: linear-gradient(135deg, #BA972E 0%, #D4AF37 42%, #E3C86E 52%, #D4AF37 62%, #BA972E 100%)`
 Define tokens in one place and ensure accessible contrast.
 
 ## Layout

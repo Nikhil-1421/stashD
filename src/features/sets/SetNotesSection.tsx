@@ -31,7 +31,7 @@ export function SetNotesSection({ userSetId }: { userSetId: string }) {
     <section aria-labelledby="notes-heading" className="rounded-lg border border-line bg-surface-1">
       <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between px-5 py-4 text-left">
         <span>
-          <span id="notes-heading" className="text-base font-semibold text-fg">Notes</span>
+          <span id="notes-heading" className="text-lg font-light text-fg">Notes</span>
           <span className="ml-2 font-mono text-xs text-fg-subtle">{notes.isPending ? '' : count}</span>
         </span>
         <span className="text-xs text-fg-muted">{open ? 'Hide' : 'Show'}</span>

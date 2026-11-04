@@ -139,7 +139,7 @@ export function CardsSection({ setId, editable, variants, collection, order }: P
     <section aria-labelledby="cards-heading" className="rounded-lg border border-line bg-surface-1">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-line px-5 py-4">
         <div>
-          <h2 id="cards-heading" className="text-base font-semibold text-fg">Cards</h2>
+          <h2 id="cards-heading" className="text-lg font-light text-fg">Cards</h2>
           <p className="mt-0.5 text-sm text-fg-muted">
             {total} {total === 1 ? 'card' : 'cards'}.{' '}
             {effectiveMode === 'collect' ? 'Tap a cell to mark that printing owned. Dashed cells are not required. Tick rows to act on several cards.' : order === 'manual' ? 'Manual order: use the arrows to move cards. A ticked cell means the card exists in that variant.' : 'A ticked cell means the card exists in that variant.'}
@@ -189,7 +189,7 @@ export function CardsSection({ setId, editable, variants, collection, order }: P
       {bulkError ? <Alert tone="danger" className="mx-5 mt-4">{bulkError}</Alert> : null}
       {effectiveMode === 'collect' && selected.size > 0 ? (
         <div role="toolbar" aria-label="Selected cards" className="mx-5 mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-accent/30 bg-accent-soft px-4 py-2 text-sm">
-          <span className="font-medium text-fg">{selected.size} selected</span>
+          <span className="font-normal text-fg">{selected.size} selected</span>
           <Button variant="ghost" size="sm" onClick={() => setSelected(EMPTY_SELECTION)}>Clear</Button>
           <span className="ml-auto flex flex-wrap gap-2">
             <Button size="sm" disabled={bulkBusy || !collectionReady} onClick={() => bulkOwned(true)}>Mark owned</Button>
@@ -216,15 +216,15 @@ export function CardsSection({ setId, editable, variants, collection, order }: P
                     <input type="checkbox" className="size-4 accent-accent" aria-label="Select all cards on this page" checked={allOnPageSelected} onChange={(e) => setSelected((prev) => { const next = new Set(prev); for (const id of pageIds) if (e.target.checked) next.add(id); else next.delete(id); return next })} />
                   </th>
                 ) : null}
-                <th scope="col" className="w-24 py-2 pr-3 font-medium">#</th>
-                <th scope="col" className="py-2 pr-3 font-medium">Name</th>
-                <th scope="col" className="w-32 py-2 pr-3 font-medium">Rarity</th>
+                <th scope="col" className="w-24 py-2 pr-3 font-normal">#</th>
+                <th scope="col" className="py-2 pr-3 font-normal">Name</th>
+                <th scope="col" className="w-32 py-2 pr-3 font-normal">Rarity</th>
                 {variants.map((v) => (
-                  <th key={v.id} scope="col" className="w-16 py-2 pr-2 text-center font-medium" title={v.name}>
+                  <th key={v.id} scope="col" className="w-16 py-2 pr-2 text-center font-normal" title={v.name}>
                     <span className="block truncate">{v.name}</span>
                   </th>
                 ))}
-                <th scope="col" className="w-40 py-2 text-right font-medium">{effectiveMode === 'edit' ? 'Actions' : 'Status'}</th>
+                <th scope="col" className="w-40 py-2 text-right font-normal">{effectiveMode === 'edit' ? 'Actions' : 'Status'}</th>
               </tr>
             </thead>
             <tbody>
@@ -365,7 +365,7 @@ function ItemDetailsRow({ card, variants, colSpan, printingByCell, collection, o
     <tr className="border-t border-line bg-surface-2">
       <td colSpan={colSpan} className="px-3 py-3">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-fg">{card.name} · copies, condition and notes per printing</p>
+          <p className="text-sm font-normal text-fg">{card.name} · copies, condition and notes per printing</p>
           <Button variant="ghost" size="sm" onClick={onClose}>Close</Button>
         </div>
         {printings.length === 0 ? (

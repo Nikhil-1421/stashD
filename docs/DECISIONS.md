@@ -243,3 +243,22 @@ exposes only whitelisted columns.
 reference printings, so deleting a printing deletes trackers' items for it — the set page warns
 owners of published sets before deletion). Provider sets (phase 9) fit the same read model
 (`owner_id is null`). Anonymous visitors never see the library; that needs the share-link work.
+
+## D-023 · Brand kit applied: Space Grotesk, ink + gold tokens, starfield background (2026-11-04)
+**Context.** The owner added `stashD-brand-kit/` (logo, app icons, palette, Space Grotesk, a 7-page
+guide) and asked for a background in the style of sparkstheory.co.uk/endurance, moving through a
+black galaxy with stars in the brand gold, minimal motion, and slightly translucent boxes. That
+reference is a fixed 2D canvas at `z-index: -1` (ground colour on `<html>`, transparent `<body>`)
+drawing lights in a wrapped 3D volume with perspective, a slow forward camera and a small sway.
+**Decision.** Same structure, own code: `Starfield` + a pure, seeded, unit-tested
+`starfield-model.ts` (no dependency). Gold points only, in the three palette golds; no glow, no
+connecting lines, no pointer or scroll reaction. Tokens move from blue-on-charcoal to Stash Ink +
+Metallic Gold with surfaces at 80–92 % opacity instead of backdrop blur on every box (blur only on
+sticky bars, for performance). Type becomes Space Grotesk Light/Regular only, per the guide, so
+`font-medium`/`font-semibold` were removed app-wide and hierarchy comes from size and colour. Logo
+usage follows the guide's sizes and don'ts. Favicons, manifest and share image come from the kit's
+`02-app-icon/web` and `06-social`.
+**Consequences.** One family for text and numbers (tabular figures replace the system mono). The
+warning colour shifted to orange so it does not read as brand gold. The canvas costs one 2D draw
+of ≤420 arcs at 30 fps; it stops when hidden. The primary logo's "no busy backgrounds" rule is met
+by keeping it on ink panels. The kit folder itself (13 MB) is not committed yet: owner's call.

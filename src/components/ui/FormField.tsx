@@ -14,7 +14,7 @@ type FormFieldProps = {
 export function FormField({ id, label, error, hint, className, children }: FormFieldProps) {
   return (
     <div className={cn('space-y-1.5', className)}>
-      <label htmlFor={id} className="block text-sm font-medium text-fg">
+      <label htmlFor={id} className="block text-sm font-normal text-fg">
         {label}
       </label>
       {children}

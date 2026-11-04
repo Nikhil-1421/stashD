@@ -35,7 +35,7 @@ export function BubbleSetPickerPage() {
             return (
               <li key={set.id}>
                 <Link to={`/sets/${set.id}/bubble`} className="block rounded-lg border border-line bg-surface-1 p-4 transition-colors hover:border-line-strong hover:bg-surface-2">
-                  <p className="truncate text-sm font-semibold text-fg">{setDisplayName(set)}</p>
+                  <p className="truncate text-sm font-normal text-fg">{setDisplayName(set)}</p>
                   <p className="mt-0.5 truncate text-xs text-fg-muted">{[set.game_name, set.set_code].filter(Boolean).join(' · ') || 'No game assigned'}</p>
                   <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
                     <div className="h-full rounded-full bg-accent" style={{ width: `${percent}%` }} />

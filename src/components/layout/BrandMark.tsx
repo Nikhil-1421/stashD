@@ -1,21 +1,34 @@
 import { Link } from 'react-router'
 import { APP_NAME } from '@/app/brand'
+import dCardUrl from '@/assets/brand/stashd-d-card.svg'
+import lockupUrl from '@/assets/brand/stashd-lockup-horizontal-on-dark.svg'
 import { cn } from '@/lib/utils'
 
-/** Logo mark + wordmark. Placeholder glyph until the brand kit is ready. */
-export function BrandMark({ showName = true, className, to = '/' }: { showName?: boolean; className?: string; to?: string | null }) {
-  const content = (
-    <>
-      <span className="grid size-8 shrink-0 place-items-center rounded-md border border-line bg-surface-2" aria-hidden="true">
-        <span className="block size-3 rounded-full bg-accent" />
-      </span>
-      {showName ? <span className="truncate text-sm font-semibold tracking-tight text-fg">{APP_NAME}</span> : null}
-    </>
-  )
-  if (to === null) return <span className={cn('flex items-center gap-2', className)}>{content}</span>
+type Props = {
+  /** `lockup`: fanned hand + gold wordmark (never under 160 px wide). `icon`: the gold D card, for tight spots. */
+  variant?: 'lockup' | 'icon'
+  /** Lockup width in px; the brand minimum is 160. */
+  width?: number
+  className?: string
+  to?: string | null
+}
+
+// Lockup artwork is 260.67 × 57.95; keep the ratio so the logo is never stretched.
+const LOCKUP_RATIO = 57.95 / 260.67
+
+/** The stashD logo from the brand kit. Uses the artwork files as-is: no retyping, glow or rotation. */
+export function BrandMark({ variant = 'lockup', width = 160, className, to = '/' }: Props) {
+  const w = Math.max(160, width)
+  const image =
+    variant === 'lockup' ? (
+      <img src={lockupUrl} alt={APP_NAME} width={w} height={Math.round(w * LOCKUP_RATIO)} className="block shrink-0" style={{ width: w, height: 'auto' }} />
+    ) : (
+      <img src={dCardUrl} alt={APP_NAME} width={32} height={32} className="block size-8 shrink-0" />
+    )
+  if (to === null) return <span className={cn('inline-flex items-center', className)}>{image}</span>
   return (
-    <Link to={to} className={cn('flex items-center gap-2', className)} aria-label={`${APP_NAME} home`}>
-      {content}
+    <Link to={to} className={cn('inline-flex items-center', className)} aria-label={`${APP_NAME} home`}>
+      {image}
     </Link>
   )
 }

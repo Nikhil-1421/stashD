@@ -8,7 +8,7 @@ export function CollectionProgress({ completion, pending }: { completion: Comple
   return (
     <section aria-labelledby="progress-heading" className="rounded-lg border border-line bg-surface-1 px-5 py-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 id="progress-heading" className="text-base font-semibold text-fg">Progress</h2>
+        <h2 id="progress-heading" className="text-lg font-light text-fg">Progress</h2>
         <p className="font-mono text-sm text-fg-muted">
           <span className="text-fg">{owned}</span> / {required} required · {percent}%
         </p>

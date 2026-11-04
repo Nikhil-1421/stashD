@@ -58,14 +58,14 @@ export function GeneratePanel({ defaults, pending, onGenerate }: Props) {
     <div className="space-y-3">
       <p className="text-sm text-fg-muted">Append pages filled with a set in checklist order. Existing pages are left as they are.</p>
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <label className="block text-xs font-medium text-fg-muted">
+        <label className="block text-xs font-normal text-fg-muted">
           Set
           <Select value={setId} onChange={(e) => { setSetId(e.target.value); setResult(null) }} disabled={sets.isPending} className="mt-1 h-9 text-sm">
             <option value="">Choose a set…</option>
             {(sets.data ?? []).map((s) => <option key={s.id} value={s.id}>{setDisplayName(s)}</option>)}
           </Select>
         </label>
-        <label className="block text-xs font-medium text-fg-muted">
+        <label className="block text-xs font-normal text-fg-muted">
           Page layout
           <Select value={dimensionsLabel(dims)} onChange={(e) => { const p = LAYOUT_PRESETS.find((x) => x.label === e.target.value); if (p) setDims({ rows: p.rows, columns: p.columns }) }} className="mt-1 h-9 text-sm">
             {LAYOUT_PRESETS.map((p) => <option key={p.label} value={p.label}>{p.label}</option>)}

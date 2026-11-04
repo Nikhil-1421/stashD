@@ -214,13 +214,13 @@ export function BinderPage() {
       <div className="grid gap-4 lg:grid-cols-[19rem_minmax(0,1fr)]">
         <aside className="space-y-4">
           <details open className="rounded-lg border border-line bg-surface-1 lg:open" >
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-fg">Cards</summary>
+            <summary className="cursor-pointer px-4 py-3 text-sm font-normal text-fg">Cards</summary>
             <div className="border-t border-line px-4 py-3">
               <CardSourcePanel armed={armed} onArm={(next) => { setArmed(next); setSelected(null) }} placedCount={(id) => placedCounts.get(id) ?? 0} />
             </div>
           </details>
           <details className="rounded-lg border border-line bg-surface-1">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-fg">Generate pages from a set</summary>
+            <summary className="cursor-pointer px-4 py-3 text-sm font-normal text-fg">Generate pages from a set</summary>
             <div className="border-t border-line px-4 py-3">
               <GeneratePanel defaults={defaults} pending={editor.pageOps.pending} onGenerate={(ids, dims) => editor.pageOps.generate(ids, dims).then(async (n) => { await queryClient.invalidateQueries({ queryKey: binderKeys.placements(binderId) }); return n })} />
             </div>
@@ -339,24 +339,24 @@ function PageTools({ page, index, total, pending, filled, onLabel, onResize, onM
 
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface-1 px-4 py-3 text-sm">
-      <label className="text-xs font-medium text-fg-muted">
+      <label className="text-xs font-normal text-fg-muted">
         Page {index + 1} label
         <Input value={label} maxLength={80} placeholder="e.g. Holos" onChange={(e) => setLabel(e.target.value)} onBlur={() => { if (label !== (page.label ?? '')) onLabel(label.trim()) }} className="mt-1 h-9 w-40 text-sm" />
       </label>
-      <label className="text-xs font-medium text-fg-muted">
+      <label className="text-xs font-normal text-fg-muted">
         Layout
         <Select value={presetValue} onChange={(e) => { const p = LAYOUT_PRESETS.find((x) => x.label === e.target.value); if (p) onResize({ rows: p.rows, columns: p.columns }) }} disabled={pending} className="mt-1 h-9 w-28 text-sm">
           {LAYOUT_PRESETS.map((p) => <option key={p.label} value={p.label}>{p.label}</option>)}
           <option value="custom">Custom</option>
         </Select>
       </label>
-      <label className="text-xs font-medium text-fg-muted">
+      <label className="text-xs font-normal text-fg-muted">
         Rows
         <Select aria-label="Rows" value={page.rows} onChange={(e) => onResize({ rows: Number(e.target.value), columns: page.columns })} disabled={pending} className="mt-1 h-9 w-16 text-sm">
           {DIMENSIONS.map((n) => <option key={n} value={n}>{n}</option>)}
         </Select>
       </label>
-      <label className="text-xs font-medium text-fg-muted">
+      <label className="text-xs font-normal text-fg-muted">
         Columns
         <Select aria-label="Columns" value={page.columns} onChange={(e) => onResize({ rows: page.rows, columns: Number(e.target.value) })} disabled={pending} className="mt-1 h-9 w-16 text-sm">
           {DIMENSIONS.map((n) => <option key={n} value={n}>{n}</option>)}

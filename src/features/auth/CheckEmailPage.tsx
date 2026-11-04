@@ -11,7 +11,7 @@ export function CheckEmailPage() {
     <AuthLayout title="Check your inbox" subtitle="One more step before you can sign in.">
       <div className="space-y-3 text-sm text-fg-muted">
         <p>
-          We sent a verification link{email ? <> to <span className="font-medium text-fg">{email}</span></> : null}. Open it to
+          We sent a verification link{email ? <> to <span className="font-normal text-fg">{email}</span></> : null}. Open it to
           activate your account.
         </p>
         <p>If an account with this address already existed, no new account was created and you can sign in instead.</p>

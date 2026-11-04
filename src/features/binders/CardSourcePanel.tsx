@@ -40,7 +40,7 @@ export function CardSourcePanel({ armed, onArm, placedCount }: Props) {
 
   return (
     <div className="space-y-3">
-      <label className="block text-xs font-medium text-fg-muted">
+      <label className="block text-xs font-normal text-fg-muted">
         Set
         <Select value={set.id} onChange={(e) => { setChosenSetId(e.target.value); setPage(0); setSearch('') }} className="mt-1 h-9 text-sm">
           {(sets.data ?? []).map((s) => <option key={s.id} value={s.id}>{setDisplayName(s)}</option>)}
