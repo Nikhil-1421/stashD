@@ -87,3 +87,14 @@ CLI without Docker. Hosted project is now the primary environment; local stack r
 glyph/favicon stay until the kit arrives, then only `brand.ts`, `styles/index.css` and
 `public/favicon.svg` change.
 **Consequences.** Renaming or re-skinning is a three-file change.
+
+## D-012 · Account deletion is a hard delete through one SECURITY DEFINER function (2026-11-04)
+**Context.** The brief requires an account-deletion flow with confirmation and documented data
+handling. The owner approved a hard delete with no grace period.
+**Decision.** `public.delete_own_account()` (SECURITY DEFINER, empty `search_path`, no arguments)
+deletes `auth.users where id = auth.uid()`; everything user-owned cascades. Executable by
+`authenticated` only. The client requires the user to type their email, calls the RPC, then clears
+the local session and shows a notice on the login page.
+**Consequences.** Every future user-owned table must reference `auth.users`/`profiles` with
+`on delete cascade` (checked in review). Storage objects (phase 9) need an explicit cleanup step in the
+same function. Recovery after deletion is impossible by design.

@@ -14,6 +14,7 @@ import { signOut } from '@/features/auth/api'
 import { useAuth } from '@/features/auth/auth-context'
 import { useEntitlements } from '@/features/entitlements/context'
 import { fetchOwnProfile, profileKeys, updateOwnProfile } from './api'
+import { DeleteAccountCard } from './DeleteAccountCard'
 
 const displayNameSchema = z.string().trim().max(80, { message: 'Use at most 80 characters.' })
 
@@ -125,11 +126,12 @@ export function SettingsPage() {
                 Sign out
               </Button>
             </div>
-            <p className="text-sm text-fg-subtle">
-              Account deletion (with confirmation and full data removal) is scheduled for the next milestone. See docs/ROADMAP.md.
-            </p>
           </CardContent>
         </Card>
+
+        <div className="lg:col-span-2">
+          <DeleteAccountCard />
+        </div>
       </div>
     </>
   )

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { FormField } from '@/components/ui/FormField'
@@ -14,6 +14,8 @@ type Fields = { email: string; password: string }
 
 export function LoginPage() {
   useDocumentTitle('Sign in')
+  const location = useLocation()
+  const notice = (location.state as { notice?: unknown } | null)?.notice
   const [fields, setFields] = useState<Fields>({ email: '', password: '' })
   const [errors, setErrors] = useState<FieldErrors<Fields>>({})
   const [formError, setFormError] = useState<string | null>(null)
@@ -46,6 +48,7 @@ export function LoginPage() {
       }
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
+        {typeof notice === 'string' ? <Alert tone="success">{notice}</Alert> : null}
         {formError ? <Alert tone="danger">{formError}</Alert> : null}
         <FormField id="email" label="Email" error={errors.email}>
           <Input

@@ -66,3 +66,17 @@ export async function updatePassword(password: string): Promise<AuthResult> {
   if (error) return { ok: false, error: describeAuthError(error) }
   return { ok: true, data: undefined }
 }
+
+/**
+ * Permanently deletes the signed-in user's account via the `delete_own_account` RPC, then clears
+ * the local session. The server function only ever deletes the caller; see migration 0002.
+ */
+export async function deleteAccount(): Promise<AuthResult> {
+  const supabase = getSupabase()
+  if (!supabase) return { ok: false, error: NOT_CONFIGURED }
+  const { error } = await supabase.rpc('delete_own_account')
+  if (error) return { ok: false, error: describeAuthError(error) }
+  // The auth user no longer exists; drop the local session without calling the server.
+  await supabase.auth.signOut({ scope: 'local' })
+  return { ok: true, data: undefined }
+}

@@ -32,6 +32,12 @@ indexes. Updated 2026-11-04 (milestone 1: `profiles` only; the rest is the agree
 Tested by `supabase/tests/database/profiles_rls.test.sql` (pgTAP; **not yet executed**, see
 `docs/ROADMAP.md` blockers).
 
+### `public.delete_own_account()` — migration `20261104100000_account_deletion.sql`
+
+SECURITY DEFINER function, `authenticated` only, no arguments. Deletes the caller's `auth.users`
+row; `profiles` (and all future owned tables) cascade. Raises `42501` when called without a
+session. Irreversible (D-012).
+
 ## Target model (phases 2–8)
 
 ```mermaid

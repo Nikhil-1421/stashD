@@ -30,8 +30,8 @@ Acceptance criteria and status:
    code and component tests, not visually.
 
 **Remaining phase-1 slices:**
-- ⬜ Account deletion: `delete_own_account()` SECURITY DEFINER function + confirmation UI + docs on
-  data handling (cascade). Needs approval before applying (changes auth behaviour).
+- ✅ Account deletion: `delete_own_account()` + typed-email confirmation UI + D-012 (approved by owner
+  2026-11-04). Migration `20261104100000_account_deletion.sql` must be applied via the SQL editor.
 - ⬜ Generate DB types from the live schema (`npm run db:types`) and drop the hand-written file.
 - ⬜ Playwright scaffold with the register → login → dashboard smoke test (needs local Supabase).
 
