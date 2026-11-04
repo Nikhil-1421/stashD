@@ -1,0 +1,2 @@
+-- Local development seed. Intentionally empty for now.
+-- Demo/seed data, when added, must be clearly labelled and never contain real user data.

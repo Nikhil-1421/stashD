@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+*.tsbuildinfo
+
+# Environment and secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Supabase local state
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# Test artifacts
+coverage
+test-results
+playwright-report
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.swp
