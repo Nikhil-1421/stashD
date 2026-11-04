@@ -283,6 +283,39 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_items: {
+        Row: {
+          id: string
+          user_set_id: string
+          printing_id: string
+          quantity: number
+          condition: string | null
+          notes: string | null
+        } & Timestamps
+        Insert: {
+          id?: string
+          user_set_id: string
+          printing_id: string
+          quantity?: number
+          condition?: string | null
+          notes?: string | null
+        } & TimestampsInsert
+        Update: {
+          id?: string
+          user_set_id?: string
+          printing_id?: string
+          quantity?: number
+          condition?: string | null
+          notes?: string | null
+        } & TimestampsInsert
+        Relationships: []
+      }
+      user_set_requirements: {
+        Row: { id: string; user_set_id: string; scope: RequirementScope; target: string; action: RequirementAction; created_at: string }
+        Insert: { id?: string; user_set_id: string; scope: RequirementScope; target: string; action: RequirementAction; created_at?: string }
+        Update: { id?: string; user_set_id?: string; scope?: RequirementScope; target?: string; action?: RequirementAction; created_at?: string }
+        Relationships: []
+      }
     }
     Views: {
       user_set_overview: {
@@ -309,6 +342,9 @@ export type Database = {
           game_name: string | null
           card_count: number
           variant_count: number
+          printing_count: number
+          owned_printings: number
+          owned_quantity: number
         }
         Relationships: []
       }
@@ -335,6 +371,10 @@ export type Database = {
         Args: { n: string }
         Returns: string
       }
+      set_collection_item: {
+        Args: { p_user_set_id: string; p_printing_id: string; p_quantity?: number | null; p_condition?: string | null; p_notes?: string | null }
+        Returns: Database['public']['Tables']['collection_items']['Row']
+      }
       import_checklist: {
         Args: {
           p_catalog_set_id: string
@@ -354,6 +394,8 @@ export type Database = {
 export type VariantCategory = 'finish' | 'edition' | 'parallel' | 'language' | 'promo' | 'rarity' | 'other'
 export type ImportSource = 'paste' | 'csv' | 'tsv' | 'json'
 export type ConflictStrategyDb = 'skip' | 'update' | 'create'
+export type RequirementScope = 'variant_category' | 'variant' | 'card' | 'printing'
+export type RequirementAction = 'include' | 'exclude'
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']

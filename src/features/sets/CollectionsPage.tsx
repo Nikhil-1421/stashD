@@ -114,6 +114,7 @@ export function SetTile({ set }: { set: UserSetOverview }) {
       </p>
       <p className="mt-3 font-mono text-xs text-fg-subtle">
         {set.card_count} {set.card_count === 1 ? 'card' : 'cards'} · {set.variant_count} {set.variant_count === 1 ? 'variant' : 'variants'}
+        {set.printing_count > 0 ? ` · ${set.owned_printings}/${set.printing_count} owned` : ''}
         {set.set_owner_id ? ' · custom' : ''}
       </p>
     </Link>

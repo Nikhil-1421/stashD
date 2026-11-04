@@ -69,6 +69,19 @@ Matching happens client-side (`features/import/domain/plan.ts`); the function re
 `existing_id` under RLS and treats a stale/foreign id as a new card. External ids from a file land
 in `catalog_cards.external_ids.import`.
 
+### Collection tracking — migration `20261104400000_collection.sql`
+
+| Object | Purpose | Ownership / RLS |
+| --- | --- | --- |
+| `collection_items` | ownership per `(user_set_id, printing_id)`: `quantity` 0–9999, `condition` ≤40, `notes` ≤2000. Quantity 0 keeps the row (and its notes). Trigger `collection_items_check_printing` refuses printings from another set. | via `user_sets.user_id`; no anon |
+| `user_set_requirements` | include/exclude rules: `scope` ∈ variant_category / variant / card / printing, `target` (uuid or category name), `action`. Unique per `(user_set_id, scope, target)`. | via `user_sets.user_id`; no anon |
+| `set_collection_item(user_set, printing, qty?, condition?, notes?)` | upsert with partial patch (`null` leaves a field alone, `''` clears). SECURITY INVOKER. | caller's RLS |
+| `user_set_overview` (view, replaced) | adds `printing_count`, `owned_printings` (quantity > 0), `owned_quantity` | caller's RLS |
+
+Completion is **not** stored. `features/collection/domain/requirements.ts` resolves rules (most
+specific scope wins, default include) and `completion.ts` counts owned required printings; both
+are pure and unit-tested. Indexes: `collection_items (printing_id)` plus the unique pair.
+
 ## Target model (phases 2–8)
 
 ```mermaid
@@ -108,12 +121,10 @@ erDiagram
   variants" are independent rows.
 - **user_sets** — a user tracking a catalog set or a custom set; unique `(user_id, catalog_set_id)`
   where not null.
-- **user_set_requirements** — include/exclude rules (scope: set / variant category / printing /
-  language) → input to the single `computeCompletion()` domain function. Changing rules never
-  touches `collection_items` (invariant 4).
-- **collection_items** — `(user_set_id, printing_id)` unique; `quantity ≥ 0`, `condition`, `notes`.
-  Status (owned / wanted / for-trade) is **not** a column here; wishlist and trade are separate
-  tables so quantities don't become ambiguous.
+- **user_set_requirements** — implemented (see above). Language/edition constraints are expressed
+  through variant categories; a dedicated language scope can be added if provider data needs it.
+- **collection_items** — implemented (see above). Status (owned / wanted / for-trade) is **not** a
+  column here; wishlist and trade are separate tables so quantities don't become ambiguous.
 - **wishlist_items / trade_items** — per printing, quantity + notes; trade quantity ≤ owned is
   enforced in domain code with a DB check where feasible.
 - **binders / binder_pages / binder_placements** — `pages (binder_id, page_order)` unique; `rows`,

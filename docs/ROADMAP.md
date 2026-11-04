@@ -70,9 +70,19 @@ rollback (phase 5), image/artwork fields in the UI (phase 9), virtualised card t
 
 The Checklist Library nav item now points at phase 8 (shared/public checklists) rather than phase 3.
 
-## Phase 4 — Collection tracking, requirements, progress ⬜
-`collection_items`, `user_set_requirements`, `computeCompletion()` with tests; set detail with
-variant columns, quantity/condition/notes; bulk operations.
+## Phase 4 — Collection tracking, requirements, progress ✅ (2026-11-04)
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| `collection_items` + `user_set_requirements` with RLS and set-membership trigger | ✅ written · ⛔ push pending owner approval | `20261104400000_collection.sql`; pgTAP `collection.test.sql` (unrun: Docker) |
+| `resolveRequired()` / `computeCompletion()` pure domain with tests | ✅ | `features/collection/domain/*` (8 tests) |
+| Set detail: progress bar, Collect mode with per-printing owned toggles (optimistic + rollback) | ✅ | `CollectionProgress.tsx`, `CardsSection.tsx`, `useSetCollection.ts`; component test |
+| Quantity / condition / notes per printing | ✅ | "Details" row per card |
+| Requirement toggles: per variant ("Counts toward completion"), per printing (details row) | ✅ | variant/printing scopes; category/card scopes exist in the model, UI in phase 5 bulk ops |
+| Dashboard owned copies / printings; set tiles show owned/printings | ✅ | overview view columns |
+| Bulk operations | ⬜ phase 5/7 | selection model arrives with Bubble Check |
+
+
 
 ## Phase 5 — Bubble Check ⬜
 Virtualised pill grid, states (missing/owned/partial/complete/excluded), filters, bulk select,

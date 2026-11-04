@@ -9,6 +9,9 @@ import { useAuth } from '@/features/auth/auth-context'
 import { CardsSection } from '@/features/cards/CardsSection'
 import { VariantsSection } from '@/features/cards/VariantsSection'
 import { cardKeys, listVariants } from '@/features/cards/api'
+import { CollectionProgress } from '@/features/collection/CollectionProgress'
+import { variantRequired } from '@/features/collection/domain/requirements'
+import { useSetCollection } from '@/features/collection/useSetCollection'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { deleteCustomSet, getUserSet, setDisplayName, setKeys } from './api'
 
@@ -23,6 +26,7 @@ export function SetDetailPage() {
   const set = useQuery({ queryKey: setKeys.detail(userSetId), queryFn: () => getUserSet(userSetId) })
   const catalogSetId = set.data?.catalog_set_id ?? ''
   const variants = useQuery({ queryKey: cardKeys.variants(catalogSetId), queryFn: () => listVariants(catalogSetId), enabled: catalogSetId !== '' })
+  const collection = useSetCollection(userSetId, catalogSetId, variants.data)
   useDocumentTitle(set.data ? setDisplayName(set.data) : 'Set')
 
   const remove = useMutation({
@@ -66,9 +70,20 @@ export function SetDetailPage() {
       {remove.isError ? <Alert tone="danger" className="mb-4">{remove.error.message}</Alert> : null}
       {data.description ? <p className="mb-6 max-w-3xl text-sm text-fg-muted">{data.description}</p> : null}
 
-      <div className="space-y-8">
-        <VariantsSection setId={catalogSetId} editable={isOwner} variants={variants} />
-        <CardsSection setId={catalogSetId} editable={isOwner} variants={variants.data ?? []} />
+      <div className="space-y-6">
+        <CollectionProgress completion={collection.completion} pending={collection.status === 'pending' || variants.isPending} />
+        {collection.status === 'error' && collection.error ? <Alert tone="danger" title="Could not load your collection for this set">{collection.error.message}</Alert> : null}
+        <VariantsSection
+          setId={catalogSetId}
+          editable={isOwner}
+          variants={variants}
+          requirements={{
+            ready: collection.status === 'ready',
+            isRequired: (v) => variantRequired(v, collection.rules),
+            setRequired: (variantId, required) => collection.setRequired('variant', variantId, required),
+          }}
+        />
+        <CardsSection setId={catalogSetId} editable={isOwner} variants={variants.data ?? []} collection={collection} />
       </div>
     </>
   )

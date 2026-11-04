@@ -141,3 +141,18 @@ XML, ~150 lines) rather than adopting an unmaintained dependency. The UI tells E
 as CSV.
 **Consequences.** Large imports are chunk-free and atomic up to 5000 rows; above that the user
 splits the file. Conflict matching is deterministic and testable without a database.
+
+## D-017 · Requirements are scoped include/exclude rules; completion is computed client-side (2026-11-04)
+**Context.** The brief wants completion driven by the user's own rules (variant categories, promos,
+language/edition, custom selection) and forbids requirement changes from touching ownership.
+**Decision.** `user_set_requirements` holds rules at four scopes (variant_category, variant, card,
+printing) with include/exclude; resolution picks the most specific rule and defaults to include, so
+a fresh set requires every printing. Ownership lives in `collection_items`; quantity 0 keeps the row
+and its notes. Completion is derived in `features/collection/domain` from all printings + rules +
+items and never persisted; the overview view only exposes rule-free counts (`owned_printings`,
+`printing_count`) for list screens and the dashboard.
+**Consequences.** One pure function is the single source of truth for "complete"; the UI exposes
+variant-level toggles now and per-printing toggles in the details row; bulk card/printing rules
+arrive with Bubble Check selection. Large sets load every printing id once (paged, ~12 requests for
+12k printings) and compute in memory; a server-side summary RPC can be added later without
+changing the rule model.

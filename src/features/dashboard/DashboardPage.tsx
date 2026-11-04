@@ -12,8 +12,8 @@ import { SetTile } from '@/features/sets/CollectionsPage'
 
 const ONBOARDING_STEPS = [
   { title: 'Create a set', detail: 'Start a custom checklist: name it, add variants, add cards.', phase: 2, to: '/sets/new' },
-  { title: 'Import a checklist', detail: 'CSV, XLSX, JSON or pasted text.', phase: 3, to: null },
-  { title: 'Choose what counts as complete', detail: 'Pick the variants and printings you actually collect.', phase: 4, to: null },
+  { title: 'Import a checklist', detail: 'CSV, TSV, JSON or pasted text, from the Import button on a set.', phase: 3, to: '/sets' },
+  { title: 'Choose what counts as complete', detail: 'On a set, untick the variants you do not collect; progress follows your rules.', phase: 4, to: '/sets' },
   { title: 'Track with Bubble Check', detail: 'Tap through a set and watch progress update instantly.', phase: 5, to: null },
   { title: 'Plan your binder', detail: 'Lay out pages and keep physical order separate from ownership.', phase: 6, to: null },
 ] as const
@@ -28,6 +28,9 @@ export function DashboardPage() {
   const greetingName = profile.data?.display_name ?? auth.user?.email?.split('@')[0] ?? 'there'
   const setCount = sets.data?.length ?? 0
   const cardCount = (sets.data ?? []).reduce((n, s) => n + s.card_count, 0)
+  const ownedQuantity = (sets.data ?? []).reduce((n, s) => n + s.owned_quantity, 0)
+  const ownedPrintings = (sets.data ?? []).reduce((n, s) => n + s.owned_printings, 0)
+  const printingCount = (sets.data ?? []).reduce((n, s) => n + s.printing_count, 0)
   const recent = (sets.data ?? []).slice(0, 6)
 
   return (
@@ -44,8 +47,8 @@ export function DashboardPage() {
           {[
             ['Sets tracked', sets.isPending ? null : String(setCount)],
             ['Catalog cards', sets.isPending ? null : String(cardCount)],
-            ['Owned quantity', '—'],
-            ['Completion', '—'],
+            ['Owned copies', sets.isPending ? null : String(ownedQuantity)],
+            ['Printings owned', sets.isPending ? null : `${ownedPrintings} / ${printingCount}`],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-line bg-surface-1 px-4 py-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">{label}</dt>
@@ -53,7 +56,7 @@ export function DashboardPage() {
             </div>
           ))}
         </dl>
-        <p className="mt-2 text-xs text-fg-subtle">Owned quantity and completion arrive with collection tracking (phase 4).</p>
+        <p className="mt-2 text-xs text-fg-subtle">Printings owned counts every printing in your sets; each set page shows completion against your own requirements.</p>
       </section>
 
       {recent.length > 0 ? (

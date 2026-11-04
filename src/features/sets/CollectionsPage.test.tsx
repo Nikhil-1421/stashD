@@ -34,6 +34,9 @@ const set = (over: Partial<UserSetOverview>): UserSetOverview => ({
   game_name: 'Pokémon',
   card_count: 102,
   variant_count: 1,
+  printing_count: 102,
+  owned_printings: 0,
+  owned_quantity: 0,
   ...over,
 })
 

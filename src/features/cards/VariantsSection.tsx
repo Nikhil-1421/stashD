@@ -12,10 +12,11 @@ import { fieldErrors, type FieldErrors } from '@/features/auth/validation'
 import { cardKeys, createVariant, deleteVariant, updateVariant, type VariantDefinition } from './api'
 import { EMPTY_VARIANT_INPUT, VARIANT_CATEGORIES, variantSchema, type VariantInput } from './schema'
 
-type Props = { setId: string; editable: boolean; variants: UseQueryResult<VariantDefinition[]> }
+type Requirements = { isRequired: (variant: VariantDefinition) => boolean; setRequired: (variantId: string, required: boolean) => void; ready: boolean }
+type Props = { setId: string; editable: boolean; variants: UseQueryResult<VariantDefinition[]>; requirements: Requirements }
 
 /** Per-set variant taxonomy. Each variant is a column in the card table and a printing per card. */
-export function VariantsSection({ setId, editable, variants }: Props) {
+export function VariantsSection({ setId, editable, variants, requirements }: Props) {
   const queryClient = useQueryClient()
   const [fields, setFields] = useState<VariantInput>(EMPTY_VARIANT_INPUT)
   const [errors, setErrors] = useState<FieldErrors<VariantInput>>({})
@@ -55,7 +56,7 @@ export function VariantsSection({ setId, editable, variants }: Props) {
       <div className="border-b border-line px-5 py-4">
         <h2 id="variants-heading" className="text-base font-semibold text-fg">Variants</h2>
         <p className="mt-0.5 text-sm text-fg-muted">
-          The printings a card can come in (base, reverse holo, 1st edition…). Each one becomes a column in the checklist.
+          The printings a card can come in (base, reverse holo, 1st edition…). Each one becomes a column in the checklist. Untick "Counts" for variants you do not collect.
         </p>
       </div>
       <div className="px-5 py-4">
@@ -77,12 +78,22 @@ export function VariantsSection({ setId, editable, variants }: Props) {
                   <input
                     type="checkbox"
                     className="size-4 accent-accent"
+                    checked={requirements.isRequired(v)}
+                    disabled={!requirements.ready}
+                    onChange={(e) => requirements.setRequired(v.id, e.target.checked)}
+                  />
+                  Counts toward completion
+                </label>
+                {editable ? <label className="flex items-center gap-2 text-sm text-fg-muted">
+                  <input
+                    type="checkbox"
+                    className="size-4 accent-accent"
                     checked={v.applies_by_default}
                     disabled={!editable || toggleDefault.isPending}
                     onChange={(e) => toggleDefault.mutate({ id: v.id, value: e.target.checked })}
                   />
                   Applies to new cards
-                </label>
+                </label> : null}
                 {editable ? (
                   <InlineConfirm
                     label="Remove"
