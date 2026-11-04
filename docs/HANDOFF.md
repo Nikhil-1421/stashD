@@ -42,7 +42,8 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Email confirmations are on; the built-in sender is rate-limited (few/hour). Owner chose to wait.
 - Brand kit applied 2026-11-04 (D-023, `docs/UI_UX_SPEC.md`): source in `stashD-brand-kit/`
   (untracked, 13 MB — owner to decide whether to commit it); in use: `src/assets/fonts` (Space
-  Grotesk Light + Regular only → never `font-medium`/`font-semibold`), `src/assets/brand` (lockup,
+  Grotesk variable; only `font-light` and `font-normal` are used and are remapped to 350 / 500 in
+  `@theme` → never `font-medium`/`font-semibold`), `src/assets/brand` (lockup,
   D card), `public/` favicons + manifest + share image, tokens in `src/styles/index.css`,
   `components/layout/Starfield.tsx` + `starfield-model.ts`, `BrandMark.tsx` (`variant`, `width`).
 - Visual checks without a login: headless Chrome is installed

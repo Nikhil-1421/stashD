@@ -1,21 +1,16 @@
 @import "tailwindcss";
 
 /*
- * Space Grotesk (SIL Open Font License, see src/assets/fonts/OFL.txt). Brand rule: Light 300 for
- * the wordmark and headings, Regular 400 for body, buttons, labels and anything under 14 px.
- * Only these two weights ship, so no other weight may be requested (font-synthesis is off).
+ * Space Grotesk variable font, 300–700 (SIL Open Font License, see src/assets/fonts/OFL.txt).
+ * The brand guide sets Light 300 for headings and Regular 400 for everything else. The owner
+ * tuned both a little heavier (350 / 500) so text holds up over the starfield now that boxes are
+ * more see-through. The app only ever uses `font-light` (headings) and `font-normal` (the rest);
+ * both are remapped in @theme below, so that is the one place to change the weights.
  */
 @font-face {
   font-family: "Space Grotesk";
-  src: url("../assets/fonts/SpaceGrotesk-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Space Grotesk";
-  src: url("../assets/fonts/SpaceGrotesk-Regular.woff2") format("woff2");
-  font-weight: 400;
+  src: url("../assets/fonts/SpaceGrotesk-Variable.woff2") format("woff2");
+  font-weight: 300 700;
   font-style: normal;
   font-display: swap;
 }
@@ -30,9 +25,9 @@
   /* Black "galaxy" ground behind everything; the starfield canvas paints on top of it. */
   --color-canvas: #050609;
   /* Stash Ink #111218 and two lifted steps of it. */
-  --color-surface-1: rgb(17 18 24 / 0.64);
-  --color-surface-2: rgb(27 29 38 / 0.72);
-  --color-surface-3: rgb(38 40 52 / 0.82);
+  --color-surface-1: rgb(17 18 24 / 0.56);
+  --color-surface-2: rgb(27 29 38 / 0.65);
+  --color-surface-3: rgb(38 40 52 / 0.76);
   /* Opaque ink for native controls whose popups cannot blend (select menus). */
   --color-surface-solid: #111218;
 
@@ -59,6 +54,10 @@
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   /* One family throughout: "mono" contexts (card numbers, counts) use tabular figures instead. */
   --font-mono: "Space Grotesk", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Brand weights, owner-tuned: headings 350 (guide: 300), body/buttons/labels 500 (guide: 400). */
+  --font-weight-light: 350;
+  --font-weight-normal: 500;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -91,7 +90,7 @@
 
   h1,
   h2 {
-    font-weight: 300;
+    font-weight: var(--font-weight-light);
   }
 
   .font-mono,

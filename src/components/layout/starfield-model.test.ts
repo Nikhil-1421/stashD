@@ -15,9 +15,9 @@ describe('starfield model', () => {
   })
 
   it('scales the star count with the viewport and clamps it', () => {
-    expect(starCount(360, 640)).toBe(200)
-    expect(starCount(1440, 900)).toBe(563)
-    expect(starCount(3840, 2160)).toBe(800)
+    expect(starCount(360, 640)).toBe(240)
+    expect(starCount(1440, 900)).toBe(682)
+    expect(starCount(3840, 2160)).toBe(960)
   })
 
   it('wraps depth so a star behind the camera reappears at the far plane', () => {
