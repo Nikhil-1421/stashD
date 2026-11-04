@@ -76,3 +76,6 @@ is recorded as an external blocker in `docs/ROADMAP.md`; the first task of the n
 `npm run db:start && npm run db:reset && npm run db:test`.
 **Consequences.** Anything depending on the live schema (generated types, auth e-mails) is unverified
 until then.
+**Update (same day).** The owner created the hosted project `stashD` and applied the migration via the
+SQL editor; `npx supabase link` works with only the login token, but `db push` was refused by the
+CLI without Docker. Hosted project is now the primary environment; local stack remains optional.

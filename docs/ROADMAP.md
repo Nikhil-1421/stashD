@@ -13,17 +13,19 @@ Acceptance criteria and status:
 | Responsive dark app shell + navigation | ✅ | `src/components/layout/*`, tokens in `src/styles/index.css` |
 | Supabase env/config handling, no credentials committed | ✅ | `src/lib/env.ts` + tests, `.env.example`, `.gitignore` |
 | Auth screens + protected routes | ✅ | register / login / verify / forgot / reset / callback; `guards.tsx` + tests |
-| Profile migration + owner-only RLS | ✅ written · ⛔ unapplied | `supabase/migrations/20261104000000_profiles.sql`, pgTAP test |
+| Profile migration + owner-only RLS | ✅ applied to hosted project (SQL editor, 2026-11-04); anon denied via REST | `supabase/migrations/20261104000000_profiles.sql`; pgTAP test still unrun (local only) |
 | Dashboard empty state / onboarding | ✅ | `features/dashboard/DashboardPage.tsx` |
 | README setup steps | ✅ | `README.md` |
 | typecheck / lint / test / build passing | ✅ (2026-11-04: 25 tests, 0 lint errors, build OK) | `npm run check` |
 
 **External blockers (precise):**
-1. Docker daemon was not running, so `supabase start` could not run: the migration and the pgTAP RLS
-   test have not been executed against a database. First step next session:
-   `npm run db:start && npm run db:reset && npm run db:test`.
-2. No Supabase project credentials were available, so the live auth flows (sign-up email, password
-   reset email, session persistence across reload) are implemented but **unverified end-to-end**.
+1. Docker daemon was not running, so the local stack and the pgTAP RLS test could not run. The
+   migration was instead applied to the hosted project `stashD` by pasting it into the SQL editor;
+   REST confirms the table exists and `anon` is denied. Because it was applied by hand, the CLI's
+   migration history is empty; run `npx supabase migration repair --status applied 20261104000000`
+   once (needs Docker per the CLI) or accept the gap until the next migration.
+2. A hosted Supabase project is configured in `.env.local` (anon key, role claim verified). Live
+   auth flows still need a manual browser pass (register → email → login → settings).
 3. No browser automation in the build environment: responsive/keyboard behaviour was reviewed in
    code and component tests, not visually.
 
