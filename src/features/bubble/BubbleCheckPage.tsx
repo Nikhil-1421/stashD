@@ -47,7 +47,8 @@ export function BubbleCheckPage() {
   const set = useQuery({ queryKey: setKeys.detail(userSetId), queryFn: () => getUserSet(userSetId) })
   const catalogSetId = set.data?.catalog_set_id ?? ''
   const variants = useQuery({ queryKey: cardKeys.variants(catalogSetId), queryFn: () => listVariants(catalogSetId), enabled: catalogSetId !== '' })
-  const cards = useQuery({ queryKey: cardKeys.allCards(catalogSetId), queryFn: () => listAllCards(catalogSetId), enabled: catalogSetId !== '' })
+  const order = set.data?.card_order ?? 'number'
+  const cards = useQuery({ queryKey: cardKeys.allCards(catalogSetId, order), queryFn: () => listAllCards(catalogSetId, order), enabled: catalogSetId !== '' })
   const collection = useSetCollection(userSetId, catalogSetId, variants.data)
   const setName = set.data ? setDisplayName(set.data) : 'Set'
   useDocumentTitle(set.data ? `Bubble Check · ${setName}` : 'Bubble Check')

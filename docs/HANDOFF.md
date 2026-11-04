@@ -6,7 +6,7 @@ it replaces re-reading the whole repo. Updated 2026-11-04 (phase 6 slice 2).
 ## What stashD is
 Universal trading-card collection tracker (React 19 + TS 7 + Vite 8 + Tailwind 4 + React Router 8
 + TanStack Query 5 + Supabase). Rules: `CLAUDE.md`. Brief: `prompts/IMPLEMENTATION_BRIEF.md`.
-Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-020:
+Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-021:
 `docs/DECISIONS.md`. Roadmap with per-phase status tables: `docs/ROADMAP.md`.
 
 ## Status by phase
@@ -18,7 +18,8 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; migration 0006 applied by owner via `db push` (2026-11-04); browser pass pending |
 | 5 Bubble Check (pill grid, filters, selection + bulk ops, keyboard, undo, clipboard) | ✅ code + tests; owner browser pass done 2026-11-04 (all good; large-set layout ideas parked in phase 7) |
 | 6 Binders (schema 0007, select→slot editing, page tools, autosave, undo, auto-layout, drag/drop via `@dnd-kit/react`, overview) | ✅ owner browser pass on desktop and phone 2026-11-04 |
-| 7 Dashboard/search/bulk · 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
+| 7 Code splitting, Bubble Check large-set layout, dashboard, global search, bulk ops on the set page, manual card order, per-set notes | ✅ code + tests (2026-11-04); migration 0008 applied; owner browser pass pending |
+| 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
 ## Environment and workflow (the non-obvious parts)
 - Node lives at `~/.local/node/bin`; every shell command needs `export PATH="$HOME/.local/node/bin:$PATH"`.
@@ -42,11 +43,12 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Phase 7 in progress: code splitting ✅, Bubble Check large-set layout ✅, dashboard ✅, global
-   search ✅ (all pending an owner browser pass); next: migration 0008 (per-set notes + manual card
-   order + reorder RPC), bulk ops on the set page.
-2. Dev server now listens on the LAN by default (`server.host = true`, owner request 2026-11-04);
-   the owner tests on a phone via the Network URL Vite prints.
+1. Owner browser pass for phase 7: top-bar search (`/` shortcut) and `/search` results that open a
+   set pre-filtered; dashboard "Keep checking" + binders + quick actions; Bubble Check Compact chip,
+   jump strip, heading rows, remembered status filter; set page: tick rows → Mark owned / Exclude;
+   Edit checklist → Manual order → ↑/↓ (then Bubble Check follows that order); Notes section.
+2. Then phase 8: wishlist / trade status per printing, sharing (public read-only checklist via
+   token), copy formats. Needs a migration (wishlist/trade columns or table, `collection_shares`).
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
 - `src/components/ui/` hand-rolled primitives (Button, ButtonLink, Chip, Input, Select, Textarea,
@@ -57,9 +59,12 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   search form lives in `components/layout/TopBar.tsx` (`/` shortcut). `CardsSection` and the set page
   accept `?q=` to pre-filter the table.
 - `src/features/sets` Collections list/tiles, set form, `SetDetailPage` (owner check via
-  `set_owner_id === auth.user.id`; renders progress + variants + cards).
-- `src/features/cards` `CardsSection` (two modes: Collect = owned toggles + Details row; Edit
-  checklist = printing exists checkboxes + add/edit/delete), `VariantsSection`, `api.ts`, `schema.ts`.
+  `set_owner_id === auth.user.id`; renders progress + variants + cards + `SetNotesSection`),
+  `notes-api.ts`.
+- `src/features/cards` `CardsSection` (two modes: Collect = owned toggles + Details row + row
+  selection with bulk owned/exclude; Edit checklist = printing exists checkboxes + add/edit/delete +
+  By number / Manual order toggle with ↑/↓), `VariantsSection`, `api.ts` (`applyOrder`,
+  `reorderCards`, `setCardOrder`), `schema.ts`.
 - `src/features/import` wizard `ImportPage` (source → map → review), pure `domain/`
   (delimited, json, mapping, paste, plan), `api.ts` (`importChecklist` RPC, `listCardKeys`).
 - `src/features/collection` `useSetCollection` hook (printings/items/rules queries, optimistic
@@ -82,7 +87,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - `src/lib/env.ts` validated env union; `lib/supabase/client.ts` `getSupabase()`/`requireSupabase()`;
   `lib/supabase/database.types.ts` **hand-written** (regenerate with `npm run db:types` once Docker works).
 - `src/test/render.tsx` helpers (`renderWithProviders`, `renderRoutes`, `signedInAs`).
-- Migrations 0001–0007 in `supabase/migrations/`, all applied to the hosted project; schema doc `docs/DATABASE_SCHEMA.md`.
+- Migrations 0001–0008 in `supabase/migrations/`, all applied to the hosted project; schema doc `docs/DATABASE_SCHEMA.md`.
 
 ## Conventions that bit us
 - Vitest 5: mock modules with `vi.mock(path, importOriginal)` delegating to a plain `let impl`
@@ -98,14 +103,15 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Paste auto-detect needs ≥80 % of lines to match a pattern; tests select the pattern explicitly.
 - plpgsql: prefix local variables (`v_slug`) — a bare `slug` was ambiguous with a column (fixed in 0005).
 
-## Next milestone: phase 7 — dashboard, global search, bulk ops
-Dashboard summary (sets, progress, missing quick access, recent binders), global search across
-sets/cards, bulk operations on the set page (selection model exists in Bubble Check), the parked
-Bubble Check large-set layout work (density setting, sticky toolbar + range jump links, remembered
-status filter), a per-set "manual order" mode so checklist drag reorder becomes meaningful, and
-per-set notes. Code splitting done 2026-11-04 (rolldown `codeSplitting` groups in `vite.config.ts`).
+## Next milestone: phase 8 — wishlist / trade, sharing, copy formats
+Model: per-printing wishlist + trade quantity (new table `user_printing_flags` or columns on
+`collection_items`; the latter keeps one row per printing), `collection_shares` with a token hash and
+a SECURITY DEFINER read function that returns only allowed fields (DATABASE_SCHEMA.md RLS matrix).
+UI: Wishlist and Trade pages (nav items exist as planned), share toggle + link on the set page, a
+public `/s/:token` read-only checklist. Copy formats already exist in Bubble Check; add a wishlist
+export. Ask before the migration push.
 
 ## Checks
-`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (137 tests
-in 30 files), Vite build (lazy route
+`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (143 tests
+in 32 files), Vite build (lazy route
 chunks + react/supabase/query/dnd/vendor chunks; first screen ≈ 210 kB gzip, mostly vendor).

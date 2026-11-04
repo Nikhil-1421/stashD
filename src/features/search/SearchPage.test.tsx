@@ -7,7 +7,7 @@ import { renderRoutes, signedInAs } from '@/test/render'
 import type { CardHit } from './api'
 import { SearchPage } from './SearchPage'
 
-const set: UserSetOverview = { id: 'us-1', user_id: 'user-1', catalog_set_id: 'cs-1', tracking_name: null, status: 'active', favorite: false, created_at: '', updated_at: '', set_name: 'Base Set', set_code: 'BS', series: null, release_date: null, language: 'en', description: null, image_url: null, set_owner_id: 'user-1', provider_id: null, game_id: null, game_slug: null, game_name: null, card_count: 2, variant_count: 1, printing_count: 2, owned_printings: 1, owned_quantity: 1 }
+const set: UserSetOverview = { id: 'us-1', user_id: 'user-1', catalog_set_id: 'cs-1', tracking_name: null, status: 'active', favorite: false, created_at: '', updated_at: '', set_name: 'Base Set', set_code: 'BS', series: null, release_date: null, language: 'en', description: null, image_url: null, set_owner_id: 'user-1', provider_id: null, game_id: null, game_slug: null, game_name: null, card_count: 2, variant_count: 1, printing_count: 2, owned_printings: 1, owned_quantity: 1, card_order: 'number' }
 const binder: BinderOverview = { id: 'b1', user_id: 'user-1', name: 'Pikachu showcase', description: null, cover_image_url: null, game_id: null, game_name: null, default_rows: 3, default_columns: 3, notes: null, created_at: '', updated_at: '', page_count: 2, placement_count: 0, slot_count: 18 }
 const hits: CardHit[] = [{ id: 'c25', catalog_set_id: 'cs-1', name: 'Pikachu', number: '25', rarity: 'Common' }]
 let searched: [string[], string][] = []

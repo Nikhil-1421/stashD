@@ -124,7 +124,7 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Manual card reorder in checklists (deferred from phase 3) | ⬜ phase 7 — needs a per-set "manual order" mode first (D-020) | |
 | Browser pass on the hosted project | ✅ slices 1 and 2 incl. touch drag on a phone (owner, 2026-11-04) | |
 
-## Phase 7 — Dashboard, global search, bulk ops 🟡 (started 2026-11-04)
+## Phase 7 — Dashboard, global search, bulk ops ✅ code + tests (2026-11-04); owner browser pass pending
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
@@ -132,9 +132,9 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Bubble Check large-set viewing: Compact density (default on pointer devices, 44×30 px pills), sticky status/search bar with jump links per 100 pills and the current section highlighted, heading rows in the grid, status filter remembered per device | ✅ | `bubble-styles.ts` (`GEOMETRY`), `BubbleGrid.tsx` (sections, handle), `domain/bubbles.ts#sectionsOf` (tests) |
 | Dashboard: stats incl. binders, recent sets with progress bars, "Keep checking" (most unowned → Bubble Check), recent binders, quick actions; onboarding only for empty accounts | ✅ | `DashboardPage.tsx`, `SetTile` |
 | Global search: `/search?q=` over sets, binders (by name) and cards (name/number, server-side, across tracked sets); top-bar box with `/` shortcut, icon on mobile; card hits open the set with the table pre-filtered | ✅ | `features/search/*` (tests), `TopBar.tsx` |
-| Bulk operations on the set page (selection + mark / exclude) | ⬜ | |
-| Per-set manual card order mode (unblocks checklist drag reorder) | ⬜ needs migration | |
-| Per-set notes (reference feature) | ⬜ needs migration | |
+| Bulk operations on the set page: row checkboxes + page select-all in Collect mode; Mark owned / not owned (required printings), Exclude / Include at card scope | ✅ | `CardsSection.tsx`; collect test |
+| Per-set manual card order: owner toggles By number / Manual in Edit checklist; ↑/↓ move across the whole set via `reorder_catalog_cards`; Bubble Check and binder generation follow the set's order | ✅ migration 0008 applied 2026-11-04 | `cards/api.ts` (`applyOrder`), pgTAP `set_notes_and_card_order.test.sql` (unrun) |
+| Per-set notes, newest first, deletable | ✅ migration 0008 | `SetNotesSection.tsx` (test) |
 ## Phase 8 — Wishlist/trade, sharing, copy formats ⬜
 ## Phase 9 — Catalog adapters / image sources ⬜ (TCGdex, Scryfall, YGOPRODeck first)
 ## Phase 10 — Export/backup, hardening, accessibility, deployment ⬜

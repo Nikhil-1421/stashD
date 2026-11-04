@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderRoutes, signedInAs } from '@/test/render'
@@ -16,6 +16,8 @@ const printings: PrintingRow[] = [
 ]
 
 let setItemImpl: (printingId: string, quantity: number | undefined) => Promise<CollectionItem> = () => Promise.reject(new Error('not stubbed'))
+let bulkCalls: { printingId: string; quantity: number }[][] = []
+let ruleCalls: unknown[] = []
 const item = (printingId: string, quantity: number): CollectionItem => ({ id: `i-${printingId}`, user_set_id: 'us-1', printing_id: printingId, quantity, condition: null, notes: null, created_at: '', updated_at: '' })
 
 vi.mock('@/features/cards/api', async (importOriginal) => {
@@ -30,6 +32,15 @@ vi.mock('@/features/collection/api', async (importOriginal) => {
     listItems: () => Promise.resolve([]),
     listRules: () => Promise.resolve([{ scope: 'variant', target: 'v-rev', action: 'exclude' }]),
     setItem: (_userSetId: string, printingId: string, patch: { quantity?: number }) => setItemImpl(printingId, patch.quantity),
+    setItemsBulk: (_userSetId: string, writes: readonly { printingId: string; quantity: number }[]) => {
+      bulkCalls.push([...writes])
+      return Promise.resolve(writes.map((w) => item(w.printingId, w.quantity)))
+    },
+    upsertRules: (_userSetId: string, rules: unknown[]) => {
+      if (rules.length > 0) ruleCalls.push(rules)
+      return Promise.resolve()
+    },
+    deleteRules: () => Promise.resolve(),
   }
 })
 
@@ -38,7 +49,7 @@ function Harness() {
   return (
     <>
       <p data-testid="progress">{collection.completion.owned}/{collection.completion.required}</p>
-      <CardsSection setId="cs-1" editable={false} variants={[base, reverse]} collection={collection} />
+      <CardsSection setId="cs-1" editable={false} variants={[base, reverse]} collection={collection} order="number" />
     </>
   )
 }
@@ -46,6 +57,8 @@ function Harness() {
 describe('CardsSection collect mode', () => {
   beforeEach(() => {
     setItemImpl = (printingId, quantity) => Promise.resolve(item(printingId, quantity ?? 1))
+    bulkCalls = []
+    ruleCalls = []
   })
 
   it('marks a printing owned optimistically and counts it against the requirements', async () => {
@@ -68,5 +81,20 @@ describe('CardsSection collect mode', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/permission denied/)
     expect(screen.getByRole('button', { name: 'Pikachu Base: not owned' })).toHaveAttribute('aria-pressed', 'false')
     expect(screen.getByTestId('progress')).toHaveTextContent('0/1')
+  })
+
+  it('ticks rows and applies bulk ownership and card-scope rules to them', async () => {
+    renderRoutes([{ path: '/', element: <Harness /> }], { auth: signedInAs() })
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select Pikachu' }))
+    const toolbar = screen.getByRole('toolbar', { name: 'Selected cards' })
+    expect(toolbar).toHaveTextContent('1 selected')
+
+    await userEvent.click(within(toolbar).getByRole('button', { name: 'Mark owned' }))
+    // Only the required printing (Base) is written; the excluded Reverse Holo is left alone.
+    await waitFor(() => expect(bulkCalls).toEqual([[{ printingId: 'p-base', quantity: 1 }]]))
+    expect(await screen.findByRole('button', { name: 'Pikachu Base: owned' })).toBeInTheDocument()
+
+    await userEvent.click(within(toolbar).getByRole('button', { name: 'Exclude from completion' }))
+    await waitFor(() => expect(ruleCalls).toEqual([[{ scope: 'card', target: 'c1', action: 'exclude' }]]))
   })
 })

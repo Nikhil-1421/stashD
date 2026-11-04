@@ -10,19 +10,22 @@ import { fieldErrors, type FieldErrors } from '@/features/auth/validation'
 import { cardStatusLabel, type CardStatus } from '@/features/collection/domain/completion'
 import type { SetCollection } from '@/features/collection/useSetCollection'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
+import type { CardOrder } from '@/lib/supabase/database.types'
 import { cn } from '@/lib/utils'
-import { addPrinting, CARDS_PAGE_SIZE, cardKeys, createCard, deleteCard, listCards, removePrinting, updateCard, type CatalogCard, type VariantDefinition } from './api'
+import { ruleFor, type RequirementRule } from '@/features/collection/domain/requirements'
+import { coarserExcludes } from '@/features/collection/useSetCollection'
+import { addPrinting, CARDS_PAGE_SIZE, cardKeys, createCard, deleteCard, listAllCards, listCards, removePrinting, reorderCards, setCardOrder, updateCard, type CatalogCard, type VariantDefinition } from './api'
 import { cardSchema, EMPTY_CARD_INPUT, type CardInput } from './schema'
 
 type Mode = 'collect' | 'edit'
-type Props = { setId: string; editable: boolean; variants: VariantDefinition[]; collection: SetCollection }
+type Props = { setId: string; editable: boolean; variants: VariantDefinition[]; collection: SetCollection; order: CardOrder }
 
 /**
  * Paginated, searchable card table. Two modes over the same cards × variants grid:
  * - collect (default): each cell is an owned toggle for that printing; rows show completion status.
  * - edit (owners only): each cell says whether the printing exists; rows can be edited/deleted.
  */
-export function CardsSection({ setId, editable, variants, collection }: Props) {
+export function CardsSection({ setId, editable, variants, collection, order }: Props) {
   const queryClient = useQueryClient()
   const [mode, setMode] = useState<Mode>('collect')
   const [page, setPage] = useState(0)
@@ -34,11 +37,14 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
   const effectiveMode: Mode = editable ? mode : 'collect'
 
   const cards = useQuery({
-    queryKey: cardKeys.list(setId, page, term),
-    queryFn: () => listCards(setId, page, term),
+    queryKey: cardKeys.list(setId, page, term, order),
+    queryFn: () => listCards(setId, page, term, order),
     enabled: setId !== '',
     placeholderData: keepPreviousData,
   })
+  const [selected, setSelected] = useState<ReadonlySet<string>>(EMPTY_SELECTION)
+  const [bulkError, setBulkError] = useState<string | null>(null)
+  const [bulkBusy, setBulkBusy] = useState(false)
   const printingByCell = new Map(collection.printings.map((p) => [`${p.cardId}:${p.variantId}`, p.id]))
 
   const invalidateCards = () => queryClient.invalidateQueries({ queryKey: cardKeys.all(setId) })
@@ -64,6 +70,26 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
       await Promise.all([invalidateCards(), invalidateList(), invalidatePrintings()])
     },
   })
+  const changeOrder = useMutation({
+    mutationFn: (next: CardOrder) => setCardOrder(setId, next),
+    onSuccess: async () => {
+      await Promise.all([invalidateList(), invalidateCards()])
+    },
+  })
+  /** Moves one card up or down across the whole set (not just the current page) and rewrites positions. */
+  const moveCard = useMutation({
+    mutationFn: async ({ cardId, delta }: { cardId: string; delta: -1 | 1 }) => {
+      const all = await queryClient.fetchQuery({ queryKey: cardKeys.allCards(setId, 'manual'), queryFn: () => listAllCards(setId, 'manual') })
+      const ids = all.map((c) => c.id)
+      const i = ids.indexOf(cardId)
+      const j = i + delta
+      if (i === -1 || j < 0 || j >= ids.length) return
+      ids[i] = ids[j] as string
+      ids[j] = cardId
+      await reorderCards(setId, ids)
+    },
+    onSuccess: invalidateCards,
+  })
   const togglePrinting = useMutation({
     mutationFn: ({ cardId, variantId, printingId }: { cardId: string; variantId: string; printingId: string | undefined }) =>
       printingId ? removePrinting(printingId) : addPrinting(cardId, variantId),
@@ -75,9 +101,39 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
   const total = cards.data?.total ?? 0
   const pageCount = Math.max(1, Math.ceil(total / CARDS_PAGE_SIZE))
   const rows = cards.data?.rows ?? []
-  const firstError = [create, update, remove, togglePrinting].find((m) => m.isError)?.error ?? collection.mutationError
+  const firstError = [create, update, remove, togglePrinting, changeOrder, moveCard].find((m) => m.isError)?.error ?? collection.mutationError
   const collectionReady = collection.status === 'ready'
-  const colSpan = 3 + variants.length + 1
+  const colSpan = 3 + variants.length + 1 + (effectiveMode === 'collect' ? 1 : 0)
+  const pageIds = rows.map((c) => c.id)
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id))
+  const selectedCards = [...selected]
+  const printingsOfCards = (cardIds: readonly string[]) => collection.printings.filter((p) => cardIds.includes(p.cardId))
+
+  async function runBulk(label: string, task: () => Promise<void>) {
+    setBulkError(null)
+    setBulkBusy(true)
+    try {
+      await task()
+    } catch (err) {
+      setBulkError(`${label} failed: ${err instanceof Error ? err.message : 'unknown error'}`)
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+  function bulkOwned(owned: boolean) {
+    const writes = printingsOfCards(selectedCards)
+      .filter((p) => (owned ? collection.required.has(p.id) || !collection.printings.some((q) => q.cardId === p.cardId && collection.required.has(q.id)) : true))
+      .filter((p) => ((collection.owned.get(p.id) ?? 0) > 0) !== owned)
+      .map((p) => ({ printingId: p.id, quantity: owned ? 1 : 0 }))
+    void runBulk(owned ? 'Mark owned' : 'Mark not owned', () => collection.setQuantities(writes))
+  }
+  function bulkRequired(required: boolean) {
+    const targets = selectedCards
+    const next: RequirementRule[] = required
+      ? targets.filter((t) => coarserExcludes(collection.rules, 'card', t, collection.printings)).map((t) => ruleFor('card', t, true))
+      : targets.map((t) => ruleFor('card', t, false))
+    void runBulk(required ? 'Include' : 'Exclude', () => collection.replaceRules('card', targets, next))
+  }
 
   return (
     <section aria-labelledby="cards-heading" className="rounded-lg border border-line bg-surface-1">
@@ -86,10 +142,19 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
           <h2 id="cards-heading" className="text-base font-semibold text-fg">Cards</h2>
           <p className="mt-0.5 text-sm text-fg-muted">
             {total} {total === 1 ? 'card' : 'cards'}.{' '}
-            {effectiveMode === 'collect' ? 'Tap a cell to mark that printing owned. Dashed cells are not required.' : 'A ticked cell means the card exists in that variant.'}
+            {effectiveMode === 'collect' ? 'Tap a cell to mark that printing owned. Dashed cells are not required. Tick rows to act on several cards.' : order === 'manual' ? 'Manual order: use the arrows to move cards. A ticked cell means the card exists in that variant.' : 'A ticked cell means the card exists in that variant.'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {editable && effectiveMode === 'edit' ? (
+            <div role="group" aria-label="Card order" className="inline-flex rounded-md border border-line p-0.5">
+              {(['number', 'manual'] as const).map((o) => (
+                <button key={o} type="button" aria-pressed={order === o} disabled={changeOrder.isPending} onClick={() => { if (order !== o) changeOrder.mutate(o) }} className={cn('rounded px-3 py-1 text-sm transition-colors', order === o ? 'bg-surface-3 text-fg' : 'text-fg-muted hover:text-fg')}>
+                  {o === 'number' ? 'By number' : 'Manual order'}
+                </button>
+              ))}
+            </div>
+          ) : null}
           {editable ? (
             <div role="group" aria-label="Table mode" className="inline-flex rounded-md border border-line p-0.5">
               {(['collect', 'edit'] as const).map((m) => (
@@ -121,6 +186,19 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
 
       {effectiveMode === 'edit' ? <AddCardForm pending={create.isPending} onSubmit={(input) => create.mutate(input)} /> : null}
       {firstError ? <Alert tone="danger" className="mx-5 mt-4">{firstError.message}</Alert> : null}
+      {bulkError ? <Alert tone="danger" className="mx-5 mt-4">{bulkError}</Alert> : null}
+      {effectiveMode === 'collect' && selected.size > 0 ? (
+        <div role="toolbar" aria-label="Selected cards" className="mx-5 mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-accent/30 bg-accent-soft px-4 py-2 text-sm">
+          <span className="font-medium text-fg">{selected.size} selected</span>
+          <Button variant="ghost" size="sm" onClick={() => setSelected(EMPTY_SELECTION)}>Clear</Button>
+          <span className="ml-auto flex flex-wrap gap-2">
+            <Button size="sm" disabled={bulkBusy || !collectionReady} onClick={() => bulkOwned(true)}>Mark owned</Button>
+            <Button variant="secondary" size="sm" disabled={bulkBusy || !collectionReady} onClick={() => bulkOwned(false)}>Mark not owned</Button>
+            <Button variant="secondary" size="sm" disabled={bulkBusy || !collectionReady} onClick={() => bulkRequired(false)}>Exclude from completion</Button>
+            <Button variant="secondary" size="sm" disabled={bulkBusy || !collectionReady} onClick={() => bulkRequired(true)}>Include in completion</Button>
+          </span>
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto px-5 py-4 scrollbar-thin">
         {cards.isPending ? (
@@ -133,6 +211,11 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
           <table className={cn('w-full border-collapse text-sm', cards.isPlaceholderData && 'opacity-60')}>
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-fg-subtle">
+                {effectiveMode === 'collect' ? (
+                  <th scope="col" className="w-8 py-2 pr-2">
+                    <input type="checkbox" className="size-4 accent-accent" aria-label="Select all cards on this page" checked={allOnPageSelected} onChange={(e) => setSelected((prev) => { const next = new Set(prev); for (const id of pageIds) if (e.target.checked) next.add(id); else next.delete(id); return next })} />
+                  </th>
+                ) : null}
                 <th scope="col" className="w-24 py-2 pr-3 font-medium">#</th>
                 <th scope="col" className="py-2 pr-3 font-medium">Name</th>
                 <th scope="col" className="w-32 py-2 pr-3 font-medium">Rarity</th>
@@ -152,7 +235,12 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
                 const status = collection.completion.byCard.get(card.id)?.status ?? 'excluded'
                 return (
                   <CardRowGroup key={card.id}>
-                    <tr className="border-t border-line">
+                    <tr className={cn('border-t border-line', selected.has(card.id) && 'bg-accent-soft/40')}>
+                      {effectiveMode === 'collect' ? (
+                        <td className="py-2 pr-2">
+                          <input type="checkbox" className="size-4 accent-accent" aria-label={`Select ${card.name}`} checked={selected.has(card.id)} onChange={(e) => setSelected((prev) => { const next = new Set(prev); if (e.target.checked) next.add(card.id); else next.delete(card.id); return next })} />
+                        </td>
+                      ) : null}
                       <td className="py-2 pr-3 font-mono text-xs text-fg-muted">{card.number ?? '—'}</td>
                       <td className="py-2 pr-3 text-fg">{card.name}</td>
                       <td className="py-2 pr-3 text-fg-muted">{card.rarity ?? ''}</td>
@@ -186,6 +274,12 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
                       <td className="py-2 text-right">
                         {effectiveMode === 'edit' ? (
                           <span className="inline-flex items-center gap-1">
+                            {order === 'manual' ? (
+                              <>
+                                <Button variant="ghost" size="sm" aria-label={`Move ${card.name} up`} disabled={moveCard.isPending} onClick={() => moveCard.mutate({ cardId: card.id, delta: -1 })}>↑</Button>
+                                <Button variant="ghost" size="sm" aria-label={`Move ${card.name} down`} disabled={moveCard.isPending} onClick={() => moveCard.mutate({ cardId: card.id, delta: 1 })}>↓</Button>
+                              </>
+                            ) : null}
                             <Button variant="ghost" size="sm" onClick={() => setEditingId(card.id)}>Edit</Button>
                             <InlineConfirm label="Delete" confirmLabel="Delete card" pending={remove.isPending && remove.variables === card.id} onConfirm={() => remove.mutate(card.id)} />
                           </span>
@@ -227,6 +321,7 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
 }
 
 const setKeysAll = ['user-sets'] as const
+const EMPTY_SELECTION: ReadonlySet<string> = new Set()
 
 /** Fragment wrapper so a card can render one or two <tr>s without breaking table semantics. */
 function CardRowGroup({ children }: { children: ReactNode }) {

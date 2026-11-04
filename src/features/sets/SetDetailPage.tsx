@@ -14,6 +14,7 @@ import { variantRequired } from '@/features/collection/domain/requirements'
 import { useSetCollection } from '@/features/collection/useSetCollection'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { deleteCustomSet, getUserSet, setDisplayName, setKeys } from './api'
+import { SetNotesSection } from './SetNotesSection'
 
 export function SetDetailPage() {
   const { userSetId = '' } = useParams()
@@ -86,7 +87,8 @@ export function SetDetailPage() {
             setRequired: (variantId, required) => collection.setRequired('variant', variantId, required),
           }}
         />
-        <CardsSection setId={catalogSetId} editable={isOwner} variants={variants.data ?? []} collection={collection} />
+        <CardsSection setId={catalogSetId} editable={isOwner} variants={variants.data ?? []} collection={collection} order={data.card_order} />
+        <SetNotesSection userSetId={data.id} />
       </div>
     </>
   )

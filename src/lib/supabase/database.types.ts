@@ -72,6 +72,7 @@ export type Database = {
           description: string | null
           image_url: string | null
           metadata: Json
+          card_order: CardOrder
         } & Timestamps
         Insert: {
           id?: string
@@ -87,6 +88,7 @@ export type Database = {
           description?: string | null
           image_url?: string | null
           metadata?: Json
+          card_order?: CardOrder
         } & TimestampsInsert
         Update: {
           id?: string
@@ -102,6 +104,7 @@ export type Database = {
           description?: string | null
           image_url?: string | null
           metadata?: Json
+          card_order?: CardOrder
         } & TimestampsInsert
         Relationships: []
       }
@@ -367,6 +370,12 @@ export type Database = {
         Update: { id?: string; page_id?: string; slot_index?: number; printing_id?: string; collection_item_id?: string | null; notes?: string | null } & TimestampsInsert
         Relationships: []
       }
+      user_set_notes: {
+        Row: { id: string; user_set_id: string; body: string } & Timestamps
+        Insert: { id?: string; user_set_id: string; body: string } & TimestampsInsert
+        Update: { id?: string; user_set_id?: string; body?: string } & TimestampsInsert
+        Relationships: []
+      }
     }
     Views: {
       binder_overview: {
@@ -416,6 +425,7 @@ export type Database = {
           printing_count: number
           owned_printings: number
           owned_quantity: number
+          card_order: CardOrder
         }
         Relationships: []
       }
@@ -466,6 +476,10 @@ export type Database = {
         Args: { p_binder_id: string; p_printing_ids: string[]; p_rows: number; p_columns: number }
         Returns: number
       }
+      reorder_catalog_cards: {
+        Args: { p_catalog_set_id: string; p_card_ids: string[] }
+        Returns: undefined
+      }
       import_checklist: {
         Args: {
           p_catalog_set_id: string
@@ -487,6 +501,7 @@ export type ImportSource = 'paste' | 'csv' | 'tsv' | 'json'
 export type ConflictStrategyDb = 'skip' | 'update' | 'create'
 export type RequirementScope = 'variant_category' | 'variant' | 'card' | 'printing'
 export type RequirementAction = 'include' | 'exclude'
+export type CardOrder = 'number' | 'manual'
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']

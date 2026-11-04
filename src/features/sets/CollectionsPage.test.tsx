@@ -18,6 +18,7 @@ const set = (over: Partial<UserSetOverview>): UserSetOverview => ({
   tracking_name: null,
   status: 'active',
   favorite: false,
+  card_order: 'number',
   created_at: '2026-01-01T00:00:00Z',
   updated_at: '2026-01-01T00:00:00Z',
   set_name: 'Base Set',

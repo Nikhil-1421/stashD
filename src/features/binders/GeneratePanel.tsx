@@ -22,7 +22,8 @@ export function GeneratePanel({ defaults, pending, onGenerate }: Props) {
   const catalogSetId = set?.catalog_set_id ?? ''
 
   const variants = useQuery({ queryKey: cardKeys.variants(catalogSetId), queryFn: () => listVariants(catalogSetId), enabled: catalogSetId !== '' })
-  const cards = useQuery({ queryKey: cardKeys.allCards(catalogSetId), queryFn: () => listAllCards(catalogSetId), enabled: catalogSetId !== '' })
+  const order = set?.card_order ?? 'number'
+  const cards = useQuery({ queryKey: cardKeys.allCards(catalogSetId, order), queryFn: () => listAllCards(catalogSetId, order), enabled: catalogSetId !== '' })
   const variantIds = useMemo(() => (variants.data ?? []).map((v) => v.id), [variants.data])
   const printings = useQuery({ queryKey: [...collectionKeys.allPrintings(catalogSetId), variantIds.join(',')], queryFn: () => listAllPrintings(variantIds), enabled: variants.isSuccess && variantIds.length > 0 })
 

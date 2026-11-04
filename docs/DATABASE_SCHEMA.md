@@ -135,6 +135,11 @@ erDiagram
 - **collection_shares** — `token_hash` (sha-256 of a random token), scope, expiry, `revoked_at`;
   read via a SECURITY DEFINER function returning only whitelisted fields.
 - **checklist_import_jobs** — implemented (see above); mapping is not persisted yet.
+- **user_set_notes** — implemented in `20261104600000_set_notes_and_card_order.sql` (phase 7):
+  timestamped free text per tracked set, owner-only via `user_sets`. The same migration adds
+  `catalog_sets.card_order` ('number' | 'manual'; exposed on `user_set_overview`) and
+  `reorder_catalog_cards(set, ids[])`, which rewrites `catalog_cards.position` from a complete
+  ordered id list under the caller's RLS (so only a custom set's owner can reorder).
 - **binders / binder_pages / binder_placements** — implemented in migration
   `20261104500000_binders.sql` (phase 6). Sparse placements: a filled slot is a row, an empty slot
   is no row; `slot_index = row * columns + col`. Unique `(page_id, slot_index)` (non-deferrable,

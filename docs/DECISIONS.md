@@ -213,3 +213,17 @@ resolution logic is unit-tested and the gesture itself is verified in the browse
 checklist reorder (phase 3 leftover) is *not* taken on here: cards are ordered by number first,
 so a drag reorder would need an explicit "manual order" mode per set, which is a phase 7 design
 question rather than a drag-library one.
+
+## D-021 · Manual card order is a per-set mode, not a per-row override (2026-11-04)
+**Context.** Cards are listed by the natural sort of their number, then `position`, then name.
+A drag or arrow reorder would be invisible while number order dominates, and most sets want number
+order anyway.
+**Decision.** `catalog_sets.card_order` ∈ {number, manual}, owner-settable on custom sets. In
+`manual`, `position` comes first everywhere a set is listed (set page, Bubble Check, binder
+generation, search is unaffected). Reordering sends the complete ordered id list to
+`reorder_catalog_cards`, which rewrites every position in one statement; the UI offers ↑/↓ that
+operate across pages. Import already assigns positions in file order, so switching an imported set
+to manual keeps the file's order as the starting point.
+**Consequences.** Two query keys per listing (order is part of the key). Drag-reordering rows can
+be added on top with `@dnd-kit/react` sortable without touching the model. Provider-sourced sets
+(phase 9) are never manual, since their rows have no owner.
