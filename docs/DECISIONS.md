@@ -253,14 +253,14 @@ drawing lights in a wrapped 3D volume with perspective, a slow forward camera an
 **Decision.** Same structure, own code: `Starfield` + a pure, seeded, unit-tested
 `starfield-model.ts` (no dependency). Gold points only, in the three palette golds; no glow, no
 connecting lines, no pointer or scroll reaction. Tokens move from blue-on-charcoal to Stash Ink +
-Metallic Gold with surfaces at 56–76 % opacity (owner-tuned 2026-11-04) instead of backdrop blur on every box (blur only on
+Metallic Gold with surfaces at 44–66 % opacity (owner-tuned 2026-11-04) instead of backdrop blur on every box (blur only on
 sticky bars, for performance). Type becomes Space Grotesk Light/Regular only, per the guide, so
 `font-medium`/`font-semibold` were removed app-wide and hierarchy comes from size and colour. Logo
 usage follows the guide's sizes and don'ts. Favicons, manifest and share image come from the kit's
 `02-app-icon/web` and `06-social`.
 **Consequences.** One family for text and numbers (tabular figures replace the system mono). The
 warning colour shifted to orange so it does not read as brand gold. The canvas costs one 2D draw
-of ≤960 arcs at 30 fps; it stops when hidden. Owner tuning the same day made the field denser and
+of ≤1400 arcs at 30 fps; it stops when hidden. Owner tuning the same day made the field denser and
 the boxes more see-through, and offset that with slightly heavier type than the guide (350 / 500
 instead of 300 / 400) via the variable font; the two weight tokens in `@theme` are the only knob. The primary logo's "no busy backgrounds" rule is met
 by keeping it on ink panels. The kit folder itself (13 MB) is not committed yet: owner's call.

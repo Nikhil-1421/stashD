@@ -33,7 +33,7 @@ export function mulberry32(seed: number): () => number {
 
 /** Star count scaled to the viewport area, bounded so phones stay cheap and big screens stay sparse. */
 export function starCount(width: number, height: number): number {
-  return Math.max(240, Math.min(960, Math.round((width * height) / 1900)))
+  return Math.max(260, Math.min(1400, Math.round((width * height) / 1350)))
 }
 
 export function createStars(count: number, seed = 20261104): Star[] {
