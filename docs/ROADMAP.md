@@ -59,7 +59,8 @@ rollback (phase 5), image/artwork fields in the UI (phase 9), virtualised card t
 | CSV/TSV/JSON upload → preview → header mapping → validation → conflict report → commit | ✅ | `features/import/ImportPage.tsx`; `domain/delimited.ts`, `json.ts`, `mapping.ts`, `plan.ts` |
 | XLSX upload | ⬜ deferred (D-016) | UI explains "save as CSV" |
 | Paste parser with configurable pattern and live preview | ✅ | `domain/paste.ts`; 4 patterns incl. the reference clipboard export |
-| Transactional commit + import job records | ✅ written · ⛔ migration must be applied via SQL editor | `20261104300000_checklist_import.sql`; pgTAP `import_checklist.test.sql` (unrun: Docker) |
+| Transactional commit + import job records | ✅ applied to hosted project (SQL editor, 2026-11-04); anon denied on function and table via REST | `20261104300000_checklist_import.sql`; pgTAP `import_checklist.test.sql` (unrun: Docker) |
+| Browser pass of paste → review → commit | ⬜ | owner to verify against the hosted project |
 | Manual bulk add | ✅ | paste = bulk add; single-card form from phase 2 |
 | Manual reorder | ⬜ moved to phase 6 | needs the drag/drop library chosen for binders; `position` column already exists |
 | Save a mapping per source | ⬜ later | |
