@@ -53,6 +53,7 @@ Build a polished, secure, responsive universal trading-card collection platform.
 - Shared tokens/components, consistent focus states, and accessible contrast.
 
 ## Workflow
+- Returning sessions: read `docs/HANDOFF.md` first; it is the compact current state. Update it at every stopping point.
 - Keep `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, `docs/DATABASE_SCHEMA.md`, `docs/REFERENCE_APPLICATION_ANALYSIS.md`, `docs/CARD_DATA_SOURCES.md`, `docs/BINDER_SYSTEM.md`, `docs/IMPORT_FORMATS.md`, `docs/DEVELOPMENT.md`, and `docs/DEPLOYMENT.md` current.
 - Record consequential decisions with context and tradeoffs in `docs/DECISIONS.md`.
 - Maintain a prioritized `docs/ROADMAP.md`; mark status accurately.

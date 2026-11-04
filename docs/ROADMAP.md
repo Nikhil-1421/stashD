@@ -74,7 +74,7 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
-| `collection_items` + `user_set_requirements` with RLS and set-membership trigger | ✅ written · ⛔ push pending owner approval | `20261104400000_collection.sql`; pgTAP `collection.test.sql` (unrun: Docker) |
+| `collection_items` + `user_set_requirements` with RLS and set-membership trigger | ✅ written · ⛔ `db push` denied by the Claude Code permission classifier; owner to paste via SQL editor or push | `20261104400000_collection.sql`; pgTAP `collection.test.sql` (unrun: Docker) |
 | `resolveRequired()` / `computeCompletion()` pure domain with tests | ✅ | `features/collection/domain/*` (8 tests) |
 | Set detail: progress bar, Collect mode with per-printing owned toggles (optimistic + rollback) | ✅ | `CollectionProgress.tsx`, `CardsSection.tsx`, `useSetCollection.ts`; component test |
 | Quantity / condition / notes per printing | ✅ | "Details" row per card |
