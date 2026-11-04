@@ -140,6 +140,17 @@ erDiagram
   `catalog_sets.card_order` ('number' | 'manual'; exposed on `user_set_overview`) and
   `reorder_catalog_cards(set, ids[])`, which rewrites `catalog_cards.position` from a complete
   ordered id list under the caller's RLS (so only a custom set's owner can reorder).
+- **Checklist Library** — implemented in `20261104700000_checklist_library.sql` (phase 8):
+  `catalog_sets.visibility` ('private' | 'public') + `published_at`. Catalog read access for a
+  signed-in user is now: provider rows, own rows, public sets, and sets the user already tracks
+  (child tables go through `catalog_set_readable()`, SECURITY DEFINER, so unpublishing never strands
+  a collector). A trigger (`catalog_set_trackable()`) refuses `user_sets` rows for sets the caller
+  cannot read, closing the "track a guessed uuid to gain access" hole. `checklist_library` view runs
+  as its owner (no security_invoker) and exposes only whitelisted columns of public sets plus a
+  publisher display name (never email). RPCs: `set_catalog_set_visibility` (owner),
+  `track_catalog_set` (idempotent), `duplicate_catalog_set` (private copy of any readable set:
+  set, variants, cards, printings; no ownership). `user_set_overview` gains `visibility` and
+  `other_tracker_count`.
 - **binders / binder_pages / binder_placements** — implemented in migration
   `20261104500000_binders.sql` (phase 6). Sparse placements: a filled slot is a row, an empty slot
   is no row; `slot_index = row * columns + col`. Unique `(page_id, slot_index)` (non-deferrable,
@@ -161,7 +172,8 @@ erDiagram
 | catalog_sets/cards/printings (custom, `owner_id`) | — | CRUD | — |
 | user_sets, requirements, collection_items, wishlist, trade | — | CRUD | — |
 | binders → pages → placements | — | CRUD via parent ownership | — |
-| collection_shares | via token function only | CRUD | via token function only |
+| collection_shares (not built; share links parked 2026-11-04) | via token function only | CRUD | via token function only |
+| catalog_sets/cards/printings (custom, published) | — | CRUD | read while public, or while already tracked |
 | profiles | — | select/insert/update | — |
 
 Child tables derive authorization from the parent (`exists (select 1 from binders b where b.id =

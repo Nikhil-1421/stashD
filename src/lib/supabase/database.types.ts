@@ -73,6 +73,8 @@ export type Database = {
           image_url: string | null
           metadata: Json
           card_order: CardOrder
+          visibility: SetVisibility
+          published_at: string | null
         } & Timestamps
         Insert: {
           id?: string
@@ -89,6 +91,8 @@ export type Database = {
           image_url?: string | null
           metadata?: Json
           card_order?: CardOrder
+          visibility?: SetVisibility
+          published_at?: string | null
         } & TimestampsInsert
         Update: {
           id?: string
@@ -105,6 +109,8 @@ export type Database = {
           image_url?: string | null
           metadata?: Json
           card_order?: CardOrder
+          visibility?: SetVisibility
+          published_at?: string | null
         } & TimestampsInsert
         Relationships: []
       }
@@ -426,6 +432,32 @@ export type Database = {
           owned_printings: number
           owned_quantity: number
           card_order: CardOrder
+          visibility: SetVisibility
+          other_tracker_count: number
+        }
+        Relationships: []
+      }
+      checklist_library: {
+        Row: {
+          id: string
+          name: string
+          set_code: string | null
+          series: string | null
+          release_date: string | null
+          language: string
+          description: string | null
+          card_order: CardOrder
+          published_at: string | null
+          updated_at: string
+          publisher_id: string | null
+          publisher_name: string
+          game_id: string | null
+          game_slug: string | null
+          game_name: string | null
+          card_count: number
+          variant_count: number
+          printing_count: number
+          tracker_count: number
         }
         Relationships: []
       }
@@ -480,6 +512,18 @@ export type Database = {
         Args: { p_catalog_set_id: string; p_card_ids: string[] }
         Returns: undefined
       }
+      set_catalog_set_visibility: {
+        Args: { p_set_id: string; p_visibility: SetVisibility }
+        Returns: SetVisibility
+      }
+      track_catalog_set: {
+        Args: { p_set_id: string }
+        Returns: string
+      }
+      duplicate_catalog_set: {
+        Args: { p_source_set_id: string; p_name?: string | null }
+        Returns: string
+      }
       import_checklist: {
         Args: {
           p_catalog_set_id: string
@@ -502,6 +546,7 @@ export type ConflictStrategyDb = 'skip' | 'update' | 'create'
 export type RequirementScope = 'variant_category' | 'variant' | 'card' | 'printing'
 export type RequirementAction = 'include' | 'exclude'
 export type CardOrder = 'number' | 'manual'
+export type SetVisibility = 'private' | 'public'
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']

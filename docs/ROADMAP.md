@@ -135,6 +135,19 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Bulk operations on the set page: row checkboxes + page select-all in Collect mode; Mark owned / not owned (required printings), Exclude / Include at card scope | ✅ | `CardsSection.tsx`; collect test |
 | Per-set manual card order: owner toggles By number / Manual in Edit checklist; ↑/↓ move across the whole set via `reorder_catalog_cards`; Bubble Check and binder generation follow the set's order | ✅ migration 0008 applied 2026-11-04 | `cards/api.ts` (`applyOrder`), pgTAP `set_notes_and_card_order.test.sql` (unrun) |
 | Per-set notes, newest first, deletable | ✅ migration 0008 | `SetNotesSection.tsx` (test) |
-## Phase 8 — Wishlist/trade, sharing, copy formats ⬜
+## Phase 8 — Checklist Library ✅ code + tests (2026-11-04); owner browser pass pending
+Owner decision 2026-11-04: wishlist, trade and public share links are **parked**; the phase is the
+Checklist Library (publish / browse / track / copy).
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| Publish / unpublish a custom set's checklist (owner toggle on the set page; tracker count; unpublish keeps existing trackers) | ✅ migration 0009 applied 2026-11-04 | `PublishPanel.tsx` (test), `set_catalog_set_visibility` |
+| Browse published checklists: search, game filter, publisher, counts; preview page with read-only card table | ✅ | `ChecklistLibraryPage.tsx` (tests), `ChecklistPreviewPage.tsx` |
+| Add a published checklist to my collection (private progress) / open it when already tracked | ✅ `track_catalog_set` + trackable trigger | `LibraryActions.tsx` |
+| Copy any readable checklist into a private editable set (also the "duplicate set" item deferred since phase 3) | ✅ `duplicate_catalog_set` | pgTAP `checklist_library.test.sql` (unrun) |
+| Non-owner set page: library banner, Copy as my own, Remove from my collection (confirm) | ✅ | `SetDetailPage.tsx` |
+| Owner deleting a published set warns about other collectors | ✅ | `SetDetailPage.tsx` |
+| Wishlist / trade status | ⬜ parked by owner | |
+| Public share links (`collection_shares`) | ⬜ parked by owner | |
 ## Phase 9 — Catalog adapters / image sources ⬜ (TCGdex, Scryfall, YGOPRODeck first)
 ## Phase 10 — Export/backup, hardening, accessibility, deployment ⬜

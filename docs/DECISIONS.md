@@ -227,3 +227,19 @@ to manual keeps the file's order as the starting point.
 **Consequences.** Two query keys per listing (order is part of the key). Drag-reordering rows can
 be added on top with `@dnd-kit/react` sortable without touching the model. Provider-sourced sets
 (phase 9) are never manual, since their rows have no owner.
+
+## D-022 · Checklist Library: visibility flag + "tracked keeps access", not copies (2026-11-04)
+**Context.** The owner chose the Checklist Library over wishlist/trade/share links for phase 8. Two
+models were possible: publishing makes a *copy* that others import (simple, but fixes never
+propagate and the library fills with stale duplicates), or publishing flips the set itself to
+readable (one checklist, publisher fixes reach everyone, but access must be reasoned about).
+**Decision.** The set itself becomes readable: `catalog_sets.visibility = 'public'`. Read policies
+on sets and children allow own, provider, public, and *already tracked* sets, so unpublishing hides
+the checklist from the library without stranding collectors who added it. A trigger refuses
+tracking a set the caller cannot read. "Copy as my own" (`duplicate_catalog_set`) gives a private
+fork for people who want to edit. The library view runs as its owner to read `display_name` and
+exposes only whitelisted columns.
+**Consequences.** A publisher editing cards changes every tracker's checklist (ownership rows
+reference printings, so deleting a printing deletes trackers' items for it — the set page warns
+owners of published sets before deletion). Provider sets (phase 9) fit the same read model
+(`owner_id is null`). Anonymous visitors never see the library; that needs the share-link work.

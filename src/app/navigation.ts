@@ -32,6 +32,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/search', label: 'Search', icon: Search, status: 'ready', phase: 7, primary: false },
   { to: '/wishlist', label: 'Wishlist', icon: Heart, status: 'planned', phase: 8, primary: false },
   { to: '/trade', label: 'Trade', icon: ArrowLeftRight, status: 'planned', phase: 8, primary: false },
-  { to: '/checklists', label: 'Checklist Library', icon: ListChecks, status: 'planned', phase: 8, primary: false },
+  { to: '/checklists', label: 'Checklist Library', icon: ListChecks, status: 'ready', phase: 8, primary: false },
   { to: '/settings', label: 'Settings', icon: Settings, status: 'ready', phase: 1, primary: false },
 ]

@@ -6,7 +6,7 @@ it replaces re-reading the whole repo. Updated 2026-11-04 (phase 6 slice 2).
 ## What stashD is
 Universal trading-card collection tracker (React 19 + TS 7 + Vite 8 + Tailwind 4 + React Router 8
 + TanStack Query 5 + Supabase). Rules: `CLAUDE.md`. Brief: `prompts/IMPLEMENTATION_BRIEF.md`.
-Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-021:
+Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-001…D-022:
 `docs/DECISIONS.md`. Roadmap with per-phase status tables: `docs/ROADMAP.md`.
 
 ## Status by phase
@@ -19,7 +19,8 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 5 Bubble Check (pill grid, filters, selection + bulk ops, keyboard, undo, clipboard) | ✅ code + tests; owner browser pass done 2026-11-04 (all good; large-set layout ideas parked in phase 7) |
 | 6 Binders (schema 0007, select→slot editing, page tools, autosave, undo, auto-layout, drag/drop via `@dnd-kit/react`, overview) | ✅ owner browser pass on desktop and phone 2026-11-04 |
 | 7 Code splitting, Bubble Check large-set layout, dashboard, global search, bulk ops on the set page, manual card order, per-set notes | ✅ code + tests (2026-11-04); migration 0008 applied; owner browser pass pending |
-| 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
+| 8 Checklist Library (publish / browse / track / copy; wishlist, trade, share links parked by owner) | ✅ code + tests (2026-11-04); migration 0009 applied; owner browser pass pending |
+| 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
 ## Environment and workflow (the non-obvious parts)
 - Node lives at `~/.local/node/bin`; every shell command needs `export PATH="$HOME/.local/node/bin:$PATH"`.
@@ -43,18 +44,21 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Owner browser pass for phase 7: top-bar search (`/` shortcut) and `/search` results that open a
-   set pre-filtered; dashboard "Keep checking" + binders + quick actions; Bubble Check Compact chip,
-   jump strip, heading rows, remembered status filter; set page: tick rows → Mark owned / Exclude;
-   Edit checklist → Manual order → ↑/↓ (then Bubble Check follows that order); Notes section.
-2. Then phase 8: wishlist / trade status per printing, sharing (public read-only checklist via
-   token), copy formats. Needs a migration (wishlist/trade columns or table, `collection_shares`).
+1. Owner browser pass for phases 7 and 8. Phase 8 needs two accounts (or a second email): account A
+   publishes a custom set (set page → Checklist Library → Published); account B opens Checklist
+   Library, previews it, "Add to my collection" (progress private), then "Copy as my own" (editable
+   fork); A unpublishes and B still sees the tracked set; B "Remove from my collection".
+2. Next: phase 9 catalog adapters (TCGdex / Scryfall / YGOPRODeck) behind the provider interface,
+   image sources, then phase 10 export/backup, hardening, Playwright, deployment.
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
 - `src/components/ui/` hand-rolled primitives (Button, ButtonLink, Chip, Input, Select, Textarea,
   FormField, Card*, Alert, Skeleton, Spinner, InlineConfirm, EmptyState). Layout in `components/layout/`.
 - `src/features/auth` (AuthProvider, guards, pages, `describeAuthError`), `profile` (settings,
   deletion), `entitlements` (policy interface, free plan; `can('sets.import')` etc.).
+- `src/features/library` `ChecklistLibraryPage` (`/checklists`), `ChecklistPreviewPage`
+  (`/checklists/:catalogSetId`), `LibraryActions` (add / copy), `PublishPanel` (owner toggle on the
+  set page), `api.ts` (`listLibrary`, `trackSet`, `duplicateSet`, `setVisibility`, `untrackSet`).
 - `src/features/search` `SearchPage` (`/search?q=`), `api.ts` (`searchCards` across tracked sets). Top-bar
   search form lives in `components/layout/TopBar.tsx` (`/` shortcut). `CardsSection` and the set page
   accept `?q=` to pre-filter the table.
@@ -87,7 +91,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - `src/lib/env.ts` validated env union; `lib/supabase/client.ts` `getSupabase()`/`requireSupabase()`;
   `lib/supabase/database.types.ts` **hand-written** (regenerate with `npm run db:types` once Docker works).
 - `src/test/render.tsx` helpers (`renderWithProviders`, `renderRoutes`, `signedInAs`).
-- Migrations 0001–0008 in `supabase/migrations/`, all applied to the hosted project; schema doc `docs/DATABASE_SCHEMA.md`.
+- Migrations 0001–0009 in `supabase/migrations/`, all applied to the hosted project; schema doc `docs/DATABASE_SCHEMA.md`.
 
 ## Conventions that bit us
 - Vitest 5: mock modules with `vi.mock(path, importOriginal)` delegating to a plain `let impl`
@@ -103,15 +107,15 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - Paste auto-detect needs ≥80 % of lines to match a pattern; tests select the pattern explicitly.
 - plpgsql: prefix local variables (`v_slug`) — a bare `slug` was ambiguous with a column (fixed in 0005).
 
-## Next milestone: phase 8 — wishlist / trade, sharing, copy formats
-Model: per-printing wishlist + trade quantity (new table `user_printing_flags` or columns on
-`collection_items`; the latter keeps one row per printing), `collection_shares` with a token hash and
-a SECURITY DEFINER read function that returns only allowed fields (DATABASE_SCHEMA.md RLS matrix).
-UI: Wishlist and Trade pages (nav items exist as planned), share toggle + link on the set page, a
-public `/s/:token` read-only checklist. Copy formats already exist in Bubble Check; add a wishlist
-export. Ask before the migration push.
+## Next milestone: phase 9 — catalog adapters and images
+Provider interface in `features/catalog/providers/<name>.ts` (search sets/cards, get set, variants,
+image URLs, checklist import) with TCGdex first (Pokémon, permissive terms), then Scryfall (MTG) and
+YGOPRODeck. Provider sets are `owner_id null` rows with `provider_id` + `provider_set_id`; ingestion
+runs through a SECURITY DEFINER RPC or an edge function (decide; document terms/attribution in
+`docs/CARD_DATA_SOURCES.md`). Images: provider URLs with attribution, lazy loading, placeholders;
+user uploads to a private bucket. Outages must not break manual sets (invariant 10).
 
 ## Checks
-`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (143 tests
-in 32 files), Vite build (lazy route
+`export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (147 tests
+in 34 files), Vite build (lazy route
 chunks + react/supabase/query/dnd/vendor chunks; first screen ≈ 210 kB gzip, mostly vendor).

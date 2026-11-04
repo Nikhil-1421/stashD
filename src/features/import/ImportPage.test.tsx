@@ -38,7 +38,7 @@ const ownSet: UserSetOverview = {
   id: 'us-1', user_id: 'user-1', catalog_set_id: 'cs-1', tracking_name: null, status: 'active', favorite: false,
   created_at: '', updated_at: '', set_name: 'Base Set', set_code: 'BS', series: null, release_date: null, language: 'en',
   description: null, image_url: null, set_owner_id: 'user-1', provider_id: null, game_id: null, game_slug: null, game_name: null,
-  card_count: 1, variant_count: 1, printing_count: 1, owned_printings: 0, owned_quantity: 0, card_order: 'number',
+  card_count: 1, variant_count: 1, printing_count: 1, owned_printings: 0, owned_quantity: 0, card_order: 'number', visibility: 'private', other_tracker_count: 0,
 }
 
 const routes = [

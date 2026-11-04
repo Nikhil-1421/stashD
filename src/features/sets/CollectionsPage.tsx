@@ -29,10 +29,16 @@ export function CollectionsPage() {
   )
 
   const newSetAction = entitlements.can('sets.create') ? <ButtonLink to="/sets/new">New custom set</ButtonLink> : null
+  const actions = (
+    <>
+      <ButtonLink to="/checklists" variant="secondary">Checklist Library</ButtonLink>
+      {newSetAction}
+    </>
+  )
 
   return (
     <>
-      <PageHeader title="Collections" description="The sets you track." actions={sets.length > 0 ? newSetAction : null} />
+      <PageHeader title="Collections" description="The sets you track." actions={sets.length > 0 ? actions : null} />
 
       {query.isPending ? (
         <div className="space-y-2" aria-busy="true">
@@ -45,8 +51,8 @@ export function CollectionsPage() {
       ) : sets.length === 0 ? (
         <EmptyState
           title="No sets yet"
-          description="Create a custom set to start a checklist from scratch. Importing files and adding from catalogs arrive in later milestones."
-          action={newSetAction}
+          description="Create a custom set to start a checklist from scratch, or add one another collector has published to the Checklist Library."
+          action={actions}
         />
       ) : (
         <>
