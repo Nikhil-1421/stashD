@@ -8,10 +8,15 @@ export type VariantDefinition = Tables<'variant_definitions'>
 export type CardPrinting = Pick<Tables<'card_printings'>, 'id' | 'catalog_card_id' | 'variant_definition_id'>
 
 export const CARDS_PAGE_SIZE = 100
+const ALL_PAGE = 1000
+
+export type CardSummary = Pick<CatalogCard, 'id' | 'name' | 'number' | 'rarity'>
 
 export const cardKeys = {
   all: (setId: string) => ['cards', setId] as const,
   list: (setId: string, page: number, search: string) => ['cards', setId, 'list', page, search] as const,
+  /** Every card of a set, unpaged; under 'cards' so card edits invalidate it too. */
+  allCards: (setId: string) => ['cards', setId, 'all'] as const,
   variants: (setId: string) => ['variants', setId] as const,
   printings: (setId: string, cardIds: readonly string[]) => ['printings', setId, cardIds.join(',')] as const,
 }
@@ -36,6 +41,25 @@ export async function listCards(setId: string, page: number, search: string): Pr
   const { data, error, count } = await query
   if (error) throw new Error(error.message)
   return { rows: data, total: count ?? data.length }
+}
+
+/** Every card of a set in checklist order (natural number sort, then position, then name). Paged under the hood. */
+export async function listAllCards(setId: string): Promise<CardSummary[]> {
+  const out: CardSummary[] = []
+  for (let from = 0; ; from += ALL_PAGE) {
+    const { data, error } = await requireSupabase()
+      .from('catalog_cards')
+      .select('id, name, number, rarity')
+      .eq('catalog_set_id', setId)
+      .order('sort_key', { ascending: true, nullsFirst: false })
+      .order('position')
+      .order('name')
+      .order('id')
+      .range(from, from + ALL_PAGE - 1)
+    if (error) throw new Error(error.message)
+    out.push(...data)
+    if (data.length < ALL_PAGE) return out
+  }
 }
 
 export async function createCard(setId: string, input: CardInput): Promise<CatalogCard> {

@@ -84,9 +84,24 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 
 
 
-## Phase 5 — Bubble Check ⬜
-Virtualised pill grid, states (missing/owned/partial/complete/excluded), filters, bulk select,
-keyboard navigation, optimistic updates with rollback, scroll preservation.
+## Phase 5 — Bubble Check ✅ code + tests (2026-11-04); owner browser pass pending
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| Pill grid, one pill per printing or per card; states missing / owned / partly owned / complete / not required | ✅ | `features/bubble/domain/bubbles.ts` (tests), `BubbleGrid.tsx` |
+| Virtualised for thousands of cards | ✅ fixed pill geometry, rows rendered against the window scroll position, no dependency | `BubbleGrid.tsx` |
+| Filters: status, variant, rarity, debounced search; counts per status | ✅ | `BubbleCheckPage.tsx` |
+| Selection (click, shift-range, Shift+Space, select all visible) → mark owned / not owned / exclude / include | ✅ chunked 500-row upsert; printing- or card-scope rules | `useSetCollection.setQuantities` / `replaceRules`, `collection/api.ts` |
+| Keyboard navigation | ✅ roving tabindex, arrows, Home/End (Ctrl: whole grid), Space, Esc clears selection, ⌘Z undo | `BubbleGrid.test.tsx` |
+| Optimistic updates with rollback and visible error | ✅ | `useSetCollection.ts`; page test |
+| Undo: 5 s toast (pauses on hover/focus), multi-step stack, ⌘Z | ✅ inverse writes computed client-side | `useUndoStack.ts`, `UndoToast.tsx` |
+| Clipboard copy of missing/owned in the reference's three formats, text-box fallback when blocked | ✅ | `domain/clipboard.ts` (tests) |
+| Scroll preservation | ✅ grid height depends only on row count, toggles never relayout | |
+| Routes `/bubble-check` (set picker) and `/sets/:id/bubble`; links from set page and dashboard | ✅ | `BubbleSetPickerPage.tsx`, `router.tsx` |
+| Browser pass on the hosted project (bulk upsert path, touch targets, mobile toolbar) | ⬜ owner | |
+| Per-set notes (reference feature) | ⬜ moved to phase 7 | |
+
+No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set_requirements` under the existing RLS (D-018).
 
 ## Phase 6 — Binder engine ⬜
 Binders/pages/placements migrations and triggers; layout presets + custom; drag/drop with keyboard

@@ -156,3 +156,20 @@ variant-level toggles now and per-printing toggles in the details row; bulk card
 arrive with Bubble Check selection. Large sets load every printing id once (paged, ~12 requests for
 12k printings) and compute in memory; a server-side summary RPC can be added later without
 changing the rule model.
+
+## D-018 · Bubble Check: bulk writes via PostgREST upsert, hand-rolled row virtualisation, client-side undo (2026-11-04)
+**Context.** Bubble Check needs "mark 500 owned" in one go, a grid that stays smooth with thousands
+of pills, and the reference's 5-second undo. Options were a new bulk RPC (another migration the
+owner must push), a virtualisation library, and a server-side action history.
+**Decision.** Bulk ownership changes go through `collection_items` upsert with `on_conflict =
+(user_set_id, printing_id)` in chunks of 500 rows, sending only the quantity column so condition
+and notes survive; requirement changes replace the rules at one scope for the selected targets
+(`deleteRules` + `upsertRules`). Both run under the existing RLS and the printing-membership
+trigger, so no migration. The grid uses fixed pill geometry (56×40 px, 6 px gap) and renders only
+the rows inside the window viewport (±6 rows), measured with a ResizeObserver and a passive scroll
+listener; no dependency. Undo is a client-side stack of inverse writes (previous quantities /
+previous rules) with a toast for 5 s and ⌘Z afterwards; nothing is stored server-side.
+**Consequences.** A bulk write is not atomic across chunks (a failure mid-way leaves earlier chunks
+applied; the optimistic cache rolls back and the next refetch shows the truth). Pills are uniform
+width, so long labels truncate rather than reflow. Undo entries die with the page; a server-side
+history can come with export/backup (phase 10) if wanted.

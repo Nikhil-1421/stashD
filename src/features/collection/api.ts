@@ -62,6 +62,28 @@ export async function setItem(userSetId: string, printingId: string, patch: Item
   return data
 }
 
+export type QuantityWrite = { printingId: string; quantity: number }
+
+const BULK_CHUNK = 500
+
+/**
+ * Bulk quantity upsert in chunks of 500 rows; condition/notes are untouched because only the
+ * quantity column is sent (PostgREST merges just the supplied columns on conflict).
+ */
+export async function setItemsBulk(userSetId: string, writes: readonly QuantityWrite[]): Promise<CollectionItem[]> {
+  const out: CollectionItem[] = []
+  for (let i = 0; i < writes.length; i += BULK_CHUNK) {
+    const rows = writes.slice(i, i + BULK_CHUNK).map((w) => ({ user_set_id: userSetId, printing_id: w.printingId, quantity: w.quantity }))
+    const { data, error } = await requireSupabase()
+      .from('collection_items')
+      .upsert(rows, { onConflict: 'user_set_id,printing_id' })
+      .select('*')
+    if (error) throw new Error(error.message)
+    out.push(...data)
+  }
+  return out
+}
+
 export async function listRules(userSetId: string): Promise<RequirementRule[]> {
   const { data, error } = await requireSupabase()
     .from('user_set_requirements')
@@ -75,6 +97,25 @@ export async function upsertRule(userSetId: string, rule: RequirementRule): Prom
   const { error } = await requireSupabase()
     .from('user_set_requirements')
     .upsert({ user_set_id: userSetId, scope: rule.scope, target: rule.target, action: rule.action }, { onConflict: 'user_set_id,scope,target' })
+  if (error) throw new Error(error.message)
+}
+
+export async function upsertRules(userSetId: string, rules: readonly RequirementRule[]): Promise<void> {
+  if (rules.length === 0) return
+  const { error } = await requireSupabase()
+    .from('user_set_requirements')
+    .upsert(rules.map((r) => ({ user_set_id: userSetId, scope: r.scope, target: r.target, action: r.action })), { onConflict: 'user_set_id,scope,target' })
+  if (error) throw new Error(error.message)
+}
+
+export async function deleteRules(userSetId: string, scope: RequirementScope, targets: readonly string[]): Promise<void> {
+  if (targets.length === 0) return
+  const { error } = await requireSupabase()
+    .from('user_set_requirements')
+    .delete()
+    .eq('user_set_id', userSetId)
+    .eq('scope', scope)
+    .in('target', [...targets])
   if (error) throw new Error(error.message)
 }
 

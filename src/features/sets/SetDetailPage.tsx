@@ -51,19 +51,22 @@ export function SetDetailPage() {
         title={setDisplayName(data)}
         description={meta || undefined}
         actions={
-          isOwner ? (
-            <>
-              <ButtonLink to={`/sets/${data.id}/import`} variant="secondary" size="sm">Import</ButtonLink>
-              <ButtonLink to={`/sets/${data.id}/edit`} variant="secondary" size="sm">Edit details</ButtonLink>
-              <InlineConfirm
-                label="Delete set"
-                confirmLabel="Delete set and all its cards"
-                description="This removes the set, its cards, variants and printings."
-                pending={remove.isPending}
-                onConfirm={() => remove.mutate()}
-              />
-            </>
-          ) : null
+          <>
+            <ButtonLink to={`/sets/${data.id}/bubble`} size="sm">Bubble Check</ButtonLink>
+            {isOwner ? (
+              <>
+                <ButtonLink to={`/sets/${data.id}/import`} variant="secondary" size="sm">Import</ButtonLink>
+                <ButtonLink to={`/sets/${data.id}/edit`} variant="secondary" size="sm">Edit details</ButtonLink>
+                <InlineConfirm
+                  label="Delete set"
+                  confirmLabel="Delete set and all its cards"
+                  description="This removes the set, its cards, variants and printings."
+                  pending={remove.isPending}
+                  onConfirm={() => remove.mutate()}
+                />
+              </>
+            ) : null}
+          </>
         }
       />
       {typeof notice === 'string' ? <Alert tone="success" className="mb-4">{notice}</Alert> : null}

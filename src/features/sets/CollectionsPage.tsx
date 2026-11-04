@@ -4,12 +4,12 @@ import { Link } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Alert } from '@/components/ui/Alert'
 import { ButtonLink } from '@/components/ui/ButtonLink'
+import { Chip } from '@/components/ui/Chip'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useEntitlements } from '@/features/entitlements/context'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { cn } from '@/lib/utils'
 import { listUserSets, setDisplayName, setKeys, type UserSetOverview } from './api'
 
 export function CollectionsPage() {
@@ -61,9 +61,9 @@ export function CollectionsPage() {
             />
             {games.length > 1 ? (
               <div role="group" aria-label="Filter by game" className="flex flex-wrap gap-1">
-                <FilterChip active={gameSlug === null} onClick={() => setGameSlug(null)}>All</FilterChip>
+                <Chip active={gameSlug === null} onClick={() => setGameSlug(null)}>All</Chip>
                 {games.map(([slug, name]) => (
-                  <FilterChip key={slug} active={gameSlug === slug} onClick={() => setGameSlug(slug)}>{name}</FilterChip>
+                  <Chip key={slug} active={gameSlug === slug} onClick={() => setGameSlug(slug)}>{name}</Chip>
                 ))}
               </div>
             ) : null}
@@ -82,22 +82,6 @@ export function CollectionsPage() {
         </>
       )}
     </>
-  )
-}
-
-function FilterChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={cn(
-        'h-8 rounded-full border px-3 text-xs font-medium transition-colors',
-        active ? 'border-line-strong bg-surface-3 text-fg' : 'border-line text-fg-muted hover:bg-surface-2 hover:text-fg',
-      )}
-    >
-      {children}
-    </button>
   )
 }
 
