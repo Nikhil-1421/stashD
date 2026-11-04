@@ -15,7 +15,7 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 | 1 Foundation, auth, profiles, account deletion | ✅ verified in browser by owner |
 | 2 Catalog schema, custom sets, cards, variants, printings | ✅ verified in browser |
 | 3 Checklist import (paste, CSV/TSV/JSON, mapping, review, transactional RPC) | ✅ verified in browser; XLSX deferred (D-016) |
-| 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; **migration 0006 not yet applied** (see below) |
+| 4 Collection items, requirement rules, computed completion, Collect mode | ✅ code + tests; migration 0006 applied by owner via `db push` (2026-11-04); browser pass pending |
 | 5 Bubble Check | ⬜ next |
 | 6 Binders · 7 Dashboard/search/bulk · 8 Wishlist/trade/sharing · 9 Catalog adapters/images · 10 Export/backup/hardening | ⬜ |
 
@@ -26,11 +26,9 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
 - CLI 3.0 (`npx supabase`) talks to the hosted DB with the login token only; migration history was
   repaired on 2026-11-04 so `db push --remote` is clean. **Pushing to production is blocked by the
   Claude Code permission classifier in auto mode** (it denied `supabase db push --remote --yes`).
-  Two unblock options: owner pastes the migration into the SQL editor
-  (https://supabase.com/dashboard/project/bahyzyokimpgzjukljap/sql/new) and we then run
-  `npx supabase migration repair --remote --yes --status applied <version>`; or owner adds a
-  permission rule for `Bash(npx supabase db push:*)` / runs the push themselves. Either way,
-  CLAUDE.md requires the owner's explicit yes before each production migration.
+  Workflow settled on 2026-11-04: I write the migration and run checks, then the owner runs
+  `npx supabase db push --remote --yes --skip-vault` in their terminal (records history too) and I
+  verify over REST. SQL editor paste remains the fallback (then `migration repair`).
 - Verify migrations afterwards over REST with curl + anon key (`set -a; source .env.local; set +a`).
   Supabase default grants let `anon` address every table; RLS is the real boundary.
 - Git: branch `feat/foundation`, remote SSH `git@github.com:Nikhil-1421/stashD.git`. Push with
@@ -42,12 +40,11 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Apply `supabase/migrations/20261104400000_collection.sql` (collection_items,
-   user_set_requirements, `set_collection_item()`, overview view gains `printing_count`,
-   `owned_printings`, `owned_quantity`). Then repair history for `20261104400000`, probe REST
-   (`/rest/v1/collection_items` as anon → 42501), and ask the owner to try Collect mode on a set.
-2. Owner browser pass for phase 4: progress bar, cell toggles, Details row, variant "Counts toward
-   completion", dashboard counts.
+1. Owner browser pass for phase 4: progress bar, cell toggles in Collect mode, Details row
+   (copies/condition/notes, per-printing Required), variant "Counts toward completion",
+   dashboard counts. Fix anything that surfaces, then start phase 5.
+2. Owner now has `~/.local/node/bin` on PATH in `~/.zshrc` and ran `npx supabase db push --remote
+   --yes --skip-vault` themselves; that is the migration workflow from here (I prepare, they push).
 
 ## Code map (where things are)
 - `src/app/` router, providers, navigation (`NAV_ITEMS` with `status`/`phase`), `brand.ts`.
