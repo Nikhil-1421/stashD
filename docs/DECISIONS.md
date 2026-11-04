@@ -126,3 +126,18 @@ PostgREST or N+1 requests.
 **Decision.** A view with `security_invoker = true` so the caller's RLS applies to every underlying
 table; counts are correlated subqueries (fine at hundreds of sets; revisit with materialisation if
 needed).
+
+## D-016 · Import commits through one RPC; XLSX deferred (2026-11-04)
+**Context.** The brief wants upload → preview → mapping → validation → conflict report → commit
+with nothing written before commit, and XLSX among the formats. The npm `xlsx` package is frozen at
+0.18.5 (2022) with open advisories; SheetJS now publishes only from its own CDN; `exceljs` is large
+and last published in 2024.
+**Decision.** Parsing, mapping and matching run in the browser as pure modules
+(`features/import/domain`), so the review table is built from the exact payload that will be sent.
+`import_checklist()` applies that payload in a single transaction under the caller's RLS and records
+a `checklist_import_jobs` row. Paste, CSV, TSV and JSON ship now; XLSX waits for a zero-dependency
+reader (zip central directory + `DecompressionStream('deflate-raw')` + `sharedStrings.xml`/sheet
+XML, ~150 lines) rather than adopting an unmaintained dependency. The UI tells Excel users to save
+as CSV.
+**Consequences.** Large imports are chunk-free and atomic up to 5000 rows; above that the user
+splits the file. Conflict matching is deterministic and testable without a database.

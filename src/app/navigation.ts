@@ -30,6 +30,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/bubble-check', label: 'Bubble Check', icon: CircleDot, status: 'planned', phase: 5, primary: true },
   { to: '/wishlist', label: 'Wishlist', icon: Heart, status: 'planned', phase: 8, primary: false },
   { to: '/trade', label: 'Trade', icon: ArrowLeftRight, status: 'planned', phase: 8, primary: false },
-  { to: '/checklists', label: 'Checklist Library', icon: ListChecks, status: 'planned', phase: 3, primary: false },
+  { to: '/checklists', label: 'Checklist Library', icon: ListChecks, status: 'planned', phase: 8, primary: false },
   { to: '/settings', label: 'Settings', icon: Settings, status: 'ready', phase: 1, primary: false },
 ]

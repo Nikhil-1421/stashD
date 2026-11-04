@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Alert } from '@/components/ui/Alert'
 import { ButtonLink } from '@/components/ui/ButtonLink'
@@ -16,6 +16,8 @@ export function SetDetailPage() {
   const { userSetId = '' } = useParams()
   const auth = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const notice = (location.state as { notice?: unknown } | null)?.notice
   const queryClient = useQueryClient()
 
   const set = useQuery({ queryKey: setKeys.detail(userSetId), queryFn: () => getUserSet(userSetId) })
@@ -47,6 +49,7 @@ export function SetDetailPage() {
         actions={
           isOwner ? (
             <>
+              <ButtonLink to={`/sets/${data.id}/import`} variant="secondary" size="sm">Import</ButtonLink>
               <ButtonLink to={`/sets/${data.id}/edit`} variant="secondary" size="sm">Edit details</ButtonLink>
               <InlineConfirm
                 label="Delete set"
@@ -59,6 +62,7 @@ export function SetDetailPage() {
           ) : null
         }
       />
+      {typeof notice === 'string' ? <Alert tone="success" className="mb-4">{notice}</Alert> : null}
       {remove.isError ? <Alert tone="danger" className="mb-4">{remove.error.message}</Alert> : null}
       {data.description ? <p className="mb-6 max-w-3xl text-sm text-fg-muted">{data.description}</p> : null}
 

@@ -58,6 +58,17 @@ set + `base` variant + tracking row), triggers `catalog_child_sync_owner`,
 Indexes: provider keys (partial unique), `(catalog_set_id, sort_key, position)`, owner partial
 indexes, `(user_id, status)`, trigram on card name.
 
+### Checklist import — migration `20261104300000_checklist_import.sql`
+
+| Object | Purpose | Ownership / RLS |
+| --- | --- | --- |
+| `checklist_import_jobs` | one row per committed import: `source` (paste/csv/tsv/json), `strategy` (skip/update/create), `summary` jsonb counts. Raw uploads are never stored. | owner select/insert; no anon |
+| `import_checklist(set, source, strategy, cards jsonb, variants jsonb)` | transactional commit of a reviewed plan: upserts variants by slug (non-default), inserts/updates/skips cards per strategy, adds named printings, records the job, returns the summary. SECURITY INVOKER; refuses sets the caller does not own (42501), >5000 cards, empty input (22023). | caller's RLS |
+
+Matching happens client-side (`features/import/domain/plan.ts`); the function re-checks every
+`existing_id` under RLS and treats a stale/foreign id as a new card. External ids from a file land
+in `catalog_cards.external_ids.import`.
+
 ## Target model (phases 2–8)
 
 ```mermaid
@@ -112,8 +123,7 @@ erDiagram
   index.
 - **collection_shares** — `token_hash` (sha-256 of a random token), scope, expiry, `revoked_at`;
   read via a SECURITY DEFINER function returning only whitelisted fields.
-- **checklist_import_jobs** — mapping config, validation summary, status; raw upload not retained
-  after commit.
+- **checklist_import_jobs** — implemented (see above); mapping is not persisted yet.
 
 ### RLS matrix (target)
 

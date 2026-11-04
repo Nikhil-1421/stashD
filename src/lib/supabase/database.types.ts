@@ -250,6 +250,39 @@ export type Database = {
         } & TimestampsInsert
         Relationships: []
       }
+      checklist_import_jobs: {
+        Row: {
+          id: string
+          user_id: string
+          catalog_set_id: string | null
+          source: ImportSource
+          strategy: ConflictStrategyDb
+          status: 'committed'
+          summary: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          catalog_set_id?: string | null
+          source: ImportSource
+          strategy: ConflictStrategyDb
+          status?: 'committed'
+          summary?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          catalog_set_id?: string | null
+          source?: ImportSource
+          strategy?: ConflictStrategyDb
+          status?: 'committed'
+          summary?: Json
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       user_set_overview: {
@@ -302,6 +335,16 @@ export type Database = {
         Args: { n: string }
         Returns: string
       }
+      import_checklist: {
+        Args: {
+          p_catalog_set_id: string
+          p_source: ImportSource
+          p_strategy: ConflictStrategyDb
+          p_cards: Json
+          p_variants?: Json
+        }
+        Returns: Json
+      }
     }
     Enums: Record<never, never>
     CompositeTypes: Record<never, never>
@@ -309,6 +352,8 @@ export type Database = {
 }
 
 export type VariantCategory = 'finish' | 'edition' | 'parallel' | 'language' | 'promo' | 'rarity' | 'other'
+export type ImportSource = 'paste' | 'csv' | 'tsv' | 'json'
+export type ConflictStrategyDb = 'skip' | 'update' | 'create'
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
 export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']

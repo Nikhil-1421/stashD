@@ -52,9 +52,20 @@ Acceptance criteria and status:
 Deferred to later phases: duplicating a set (phase 3 alongside import), optimistic toggles with
 rollback (phase 5), image/artwork fields in the UI (phase 9), virtualised card table (phase 5).
 
-## Phase 3 — Checklist import / paste / manual ⬜
-CSV/XLSX/JSON upload → preview → header mapping → validation → conflict report → commit; paste
-parser; manual bulk add/reorder; import job records. Parser unit tests.
+## Phase 3 — Checklist import / paste / manual ✅ (2026-11-04)
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| CSV/TSV/JSON upload → preview → header mapping → validation → conflict report → commit | ✅ | `features/import/ImportPage.tsx`; `domain/delimited.ts`, `json.ts`, `mapping.ts`, `plan.ts` |
+| XLSX upload | ⬜ deferred (D-016) | UI explains "save as CSV" |
+| Paste parser with configurable pattern and live preview | ✅ | `domain/paste.ts`; 4 patterns incl. the reference clipboard export |
+| Transactional commit + import job records | ✅ written · ⛔ migration must be applied via SQL editor | `20261104300000_checklist_import.sql`; pgTAP `import_checklist.test.sql` (unrun: Docker) |
+| Manual bulk add | ✅ | paste = bulk add; single-card form from phase 2 |
+| Manual reorder | ⬜ moved to phase 6 | needs the drag/drop library chosen for binders; `position` column already exists |
+| Save a mapping per source | ⬜ later | |
+| Tests | ✅ | 32 new Vitest tests (29 domain + 3 page flow) |
+
+The Checklist Library nav item now points at phase 8 (shared/public checklists) rather than phase 3.
 
 ## Phase 4 — Collection tracking, requirements, progress ⬜
 `collection_items`, `user_set_requirements`, `computeCompletion()` with tests; set detail with

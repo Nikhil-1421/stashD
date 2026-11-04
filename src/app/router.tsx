@@ -8,6 +8,7 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { RegisterPage } from '@/features/auth/RegisterPage'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
+import { ImportPage } from '@/features/import/ImportPage'
 import { SettingsPage } from '@/features/profile/SettingsPage'
 import { CollectionsPage } from '@/features/sets/CollectionsPage'
 import { SetDetailPage } from '@/features/sets/SetDetailPage'
@@ -46,6 +47,7 @@ export const routes: RouteObject[] = [
               { path: '/sets/new', element: <SetFormPage /> },
               { path: '/sets/:userSetId', element: <SetDetailPage /> },
               { path: '/sets/:userSetId/edit', element: <SetFormPage /> },
+              { path: '/sets/:userSetId/import', element: <ImportPage /> },
               { path: '/binders', element: <PlannedPage /> },
               { path: '/bubble-check', element: <PlannedPage /> },
               { path: '/wishlist', element: <PlannedPage /> },
