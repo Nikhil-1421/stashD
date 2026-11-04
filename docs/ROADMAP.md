@@ -100,12 +100,28 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 | Routes `/bubble-check` (set picker) and `/sets/:id/bubble`; links from set page and dashboard | ✅ | `BubbleSetPickerPage.tsx`, `router.tsx` |
 | Browser pass on the hosted project (bulk upsert path, touch targets, mobile toolbar) | ⬜ owner | |
 | Per-set notes (reference feature) | ⬜ moved to phase 7 | |
+| Large-set viewing (owner-approved 2026-11-04, deferred): desktop pill density setting, sticky filter bar with number-range jump links and sticky section headings, status filter remembered per device; later cards-by-default for multi-variant sets and collapsible rarity groups | ⬜ phase 7 | design in session notes; no schema change |
 
 No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set_requirements` under the existing RLS (D-018).
 
-## Phase 6 — Binder engine ⬜
-Binders/pages/placements migrations and triggers; layout presets + custom; drag/drop with keyboard
-alternative; move/swap/remove/duplicate; resize preview; batched autosave with status; undo.
+## Phase 6 — Binder engine 🟡 (slice 1 delivered 2026-11-04; migration 0007 awaiting owner push)
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| Binders / pages / placements tables, RLS via parent, slot-fit trigger, overview view | ✅ written; ⬜ not yet pushed to the hosted project | `20261104500000_binders.sql`; pgTAP `binders.test.sql` (unrun: Docker) |
+| Layout presets (2×2 … 4×4) + custom rows/columns up to 6 | ✅ | `domain/layout.ts` (tests), `BinderForm.tsx`, `PageTools` |
+| Resize preview: coordinate remap, list of what would drop, explicit confirm | ✅ client preview + `resize_binder_page` RPC | `remapPlacements` (tests); page test |
+| Select card → select slot path; move / swap / remove / duplicate | ✅ | `BinderCanvas.tsx`, `BinderPage.tsx`; page test |
+| Keyboard: arrows, Enter, Delete, Esc, ⌘Z | ✅ | `BinderCanvas.tsx` |
+| Page add / duplicate / delete / reorder / label / clear | ✅ RPCs for duplicate + reorder | `useBinderEditor.pageOps` |
+| Batched autosave (800 ms), Saving / Saved / Unsaved (n) / Failed + Retry; pending kept on failure; beforeunload guard | ✅ | `useBinderEditor.ts`; page test |
+| Undo for placement operations (inverse ops, multi-step, toast) | ✅ shared `hooks/useUndoStack` | |
+| Auto-layout: generate pages from a set in checklist order with page/empty-slot preview | ✅ `generate_binder_pages` RPC; appends, never overwrites | `GeneratePanel.tsx` |
+| Drag and drop (pointer) with touch support | ⬜ slice 2 — library still to pick (see D-019) | |
+| Card images / placeholders in slots | ⬜ phase 9 (no image source yet) | |
+| Binder overview grid / zoom | ⬜ slice 2 | |
+| Manual card reorder in checklists (deferred from phase 3) | ⬜ with the drag library | |
+| Browser pass on the hosted project | ⬜ owner, after pushing 0007 | |
 
 ## Phase 7 — Dashboard, global search, bulk ops ⬜
 ## Phase 8 — Wishlist/trade, sharing, copy formats ⬜

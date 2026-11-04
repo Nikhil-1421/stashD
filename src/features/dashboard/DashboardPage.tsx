@@ -10,13 +10,13 @@ import { fetchOwnProfile, profileKeys } from '@/features/profile/api'
 import { listUserSets, setDisplayName, setKeys } from '@/features/sets/api'
 import { SetTile } from '@/features/sets/CollectionsPage'
 
-const ONBOARDING_STEPS = [
+const ONBOARDING_STEPS: readonly { title: string; detail: string; phase: number; to: string | null }[] = [
   { title: 'Create a set', detail: 'Start a custom checklist: name it, add variants, add cards.', phase: 2, to: '/sets/new' },
   { title: 'Import a checklist', detail: 'CSV, TSV, JSON or pasted text, from the Import button on a set.', phase: 3, to: '/sets' },
   { title: 'Choose what counts as complete', detail: 'On a set, untick the variants you do not collect; progress follows your rules.', phase: 4, to: '/sets' },
   { title: 'Track with Bubble Check', detail: 'Tap through a set and watch progress update instantly.', phase: 5, to: '/bubble-check' },
-  { title: 'Plan your binder', detail: 'Lay out pages and keep physical order separate from ownership.', phase: 6, to: null },
-] as const
+  { title: 'Plan your binder', detail: 'Lay out pages and keep physical order separate from ownership.', phase: 6, to: '/binders' },
+]
 
 export function DashboardPage() {
   useDocumentTitle('Dashboard')

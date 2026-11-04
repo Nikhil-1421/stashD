@@ -173,3 +173,23 @@ previous rules) with a toast for 5 s and ⌘Z afterwards; nothing is stored serv
 applied; the optimistic cache rolls back and the next refetch shows the truth). Pills are uniform
 width, so long labels truncate rather than reflow. Undo entries die with the page; a server-side
 history can come with export/backup (phase 10) if wanted.
+
+## D-019 · Binder persistence: sparse placements, upsert batches, transactional RPCs; drag/drop deferred (2026-11-04)
+**Context.** The binder spec wants real persistence with batched debounced saves, honest save
+status, coordinate-preserving resizes, and a non-drag path that always works. The drag library
+choice is unsettled: `@dnd-kit/core` 6.3.1 is stable and touch-capable but unmaintained since
+December 2024; `@dnd-kit/react` 0.5.x is maintained but pre-1.0; `@atlaskit/pragmatic-drag-and-drop`
+4.0 is maintained and small but rides the native HTML drag API, which has no touch drag on Android.
+**Decision.** Placements are sparse rows keyed `(page_id, slot_index)`. The editor keeps a local
+overlay of edits, coalesces them per slot, and after 800 ms sends one PostgREST upsert for filled
+slots plus one delete per page for cleared slots. A failed batch stays pending (status "Save
+failed", Retry) and is merged under anything queued since; the page never claims "Saved" until the
+server confirmed. Operations that need atomicity run as RPCs under the caller's RLS: create with
+first pages, resize (delete + re-insert so the non-deferrable key never clashes), reorder (deferred
+unique on page order), duplicate, generate. Slice 1 ships the select-card → select-slot path,
+keyboard navigation and undo; drag and drop is slice 2, where the library is chosen with a
+one-week spike on touch behaviour rather than guessed now. Page-structure changes flush pending
+placements first and refuse to proceed if that flush fails.
+**Consequences.** A batch is two statements, not one transaction: a failure between them leaves
+upserts applied and deletes pending, which the retry completes. Undo is client-side and dies with
+the page. Slots show number / name / variant text only until an image source exists (phase 9).

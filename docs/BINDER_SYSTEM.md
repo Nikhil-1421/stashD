@@ -1,6 +1,7 @@
 # Binder System
 
-Status: design agreed; implementation in phase 6. Spec input: `docs/BINDER_ENGINE_SPEC.md`.
+Status: slice 1 implemented 2026-11-04 (schema, select→slot editing, page tools, autosave, undo,
+auto-layout); drag/drop is slice 2 (D-019). Spec input: `docs/BINDER_ENGINE_SPEC.md`.
 
 ## Model
 - `binders(id, user_id, name, description, cover_image_url, game_id?, default_rows, default_columns, notes, created_at, updated_at)`
@@ -19,8 +20,8 @@ Status: design agreed; implementation in phase 6. Spec input: `docs/BINDER_ENGIN
 
 ## Interactions (target)
 Desktop: card source panel · page canvas · inspector. Mobile: page view + bottom-sheet chooser.
-Drag/drop (`@dnd-kit`, pointer + keyboard sensors) and an always-available select-card → select-slot
-path. Move, swap, remove, duplicate, page add/duplicate/reorder/delete, overview grid, zoom.
+Drag/drop (library to be chosen in slice 2, see D-019) and an always-available select-card →
+select-slot path. Move, swap, remove, duplicate, page add/duplicate/reorder/delete, overview grid, zoom.
 Undo stack for placement operations (client-side, bounded).
 
 ## Persistence

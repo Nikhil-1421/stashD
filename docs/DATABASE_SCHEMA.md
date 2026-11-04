@@ -135,6 +135,17 @@ erDiagram
 - **collection_shares** — `token_hash` (sha-256 of a random token), scope, expiry, `revoked_at`;
   read via a SECURITY DEFINER function returning only whitelisted fields.
 - **checklist_import_jobs** — implemented (see above); mapping is not persisted yet.
+- **binders / binder_pages / binder_placements** — implemented in migration
+  `20261104500000_binders.sql` (phase 6). Sparse placements: a filled slot is a row, an empty slot
+  is no row; `slot_index = row * columns + col`. Unique `(page_id, slot_index)` (non-deferrable,
+  the client upserts on it); unique `(binder_id, page_order)` deferrable so `reorder_binder_pages`
+  can renumber in one statement. Triggers: a placement must fit its page; shrinking a page under
+  placements directly is refused. RPCs (SECURITY INVOKER, RLS applies): `create_binder` (binder +
+  first pages), `resize_binder_page` (coordinate remap, deletes what no longer fits, returns the
+  count), `reorder_binder_pages`, `duplicate_binder_page` (copies placements, shifts later pages),
+  `generate_binder_pages` (auto-layout from a printing list, ≤ 5000). View `binder_overview`
+  (security_invoker) adds page/placement/slot counts. `collection_item_id` is nullable and set null
+  when the item goes, so a placement never depends on ownership.
 
 ### RLS matrix (target)
 

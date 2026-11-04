@@ -25,8 +25,8 @@ import { BubbleGrid } from './BubbleGrid'
 import { PILL_BASE, PILL_STATE } from './bubble-styles'
 import { buildBubbles, distinctRarities, EMPTY_FILTER, filterBubbles, isBubbleUnit, matchesStatus, rangeKeys, toggleWrites, type Bubble, type BubbleFilter, type BubbleState, type BubbleStatusFilter, type BubbleUnit } from './domain/bubbles'
 import { COPY_FORMATS, formatBubbles, isCopyFormat, type CopyFormat } from './domain/clipboard'
-import { UndoToast } from './UndoToast'
-import { useUndoStack } from './useUndoStack'
+import { UndoToast } from '@/components/ui/UndoToast'
+import { useUndoStack } from '@/hooks/useUndoStack'
 
 const STATUS_FILTERS: readonly { value: BubbleStatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },

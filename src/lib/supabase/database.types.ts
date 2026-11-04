@@ -316,8 +316,79 @@ export type Database = {
         Update: { id?: string; user_set_id?: string; scope?: RequirementScope; target?: string; action?: RequirementAction; created_at?: string }
         Relationships: []
       }
+      binders: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          cover_image_url: string | null
+          game_id: string | null
+          default_rows: number
+          default_columns: number
+          notes: string | null
+          metadata: Json
+        } & Timestamps
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          cover_image_url?: string | null
+          game_id?: string | null
+          default_rows?: number
+          default_columns?: number
+          notes?: string | null
+          metadata?: Json
+        } & TimestampsInsert
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          cover_image_url?: string | null
+          game_id?: string | null
+          default_rows?: number
+          default_columns?: number
+          notes?: string | null
+          metadata?: Json
+        } & TimestampsInsert
+        Relationships: []
+      }
+      binder_pages: {
+        Row: { id: string; binder_id: string; page_order: number; rows: number; columns: number; label: string | null } & Timestamps
+        Insert: { id?: string; binder_id: string; page_order: number; rows: number; columns: number; label?: string | null } & TimestampsInsert
+        Update: { id?: string; binder_id?: string; page_order?: number; rows?: number; columns?: number; label?: string | null } & TimestampsInsert
+        Relationships: []
+      }
+      binder_placements: {
+        Row: { id: string; page_id: string; slot_index: number; printing_id: string; collection_item_id: string | null; notes: string | null } & Timestamps
+        Insert: { id?: string; page_id: string; slot_index: number; printing_id: string; collection_item_id?: string | null; notes?: string | null } & TimestampsInsert
+        Update: { id?: string; page_id?: string; slot_index?: number; printing_id?: string; collection_item_id?: string | null; notes?: string | null } & TimestampsInsert
+        Relationships: []
+      }
     }
     Views: {
+      binder_overview: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          cover_image_url: string | null
+          game_id: string | null
+          game_name: string | null
+          default_rows: number
+          default_columns: number
+          notes: string | null
+          created_at: string
+          updated_at: string
+          page_count: number
+          placement_count: number
+          slot_count: number
+        }
+        Relationships: []
+      }
       user_set_overview: {
         Row: {
           id: string
@@ -374,6 +445,26 @@ export type Database = {
       set_collection_item: {
         Args: { p_user_set_id: string; p_printing_id: string; p_quantity?: number | null; p_condition?: string | null; p_notes?: string | null }
         Returns: Database['public']['Tables']['collection_items']['Row']
+      }
+      create_binder: {
+        Args: { p_name: string; p_rows?: number; p_columns?: number; p_game_id?: string | null; p_description?: string | null; p_pages?: number }
+        Returns: string
+      }
+      resize_binder_page: {
+        Args: { p_page_id: string; p_rows: number; p_columns: number }
+        Returns: number
+      }
+      reorder_binder_pages: {
+        Args: { p_binder_id: string; p_page_ids: string[] }
+        Returns: undefined
+      }
+      duplicate_binder_page: {
+        Args: { p_page_id: string }
+        Returns: string
+      }
+      generate_binder_pages: {
+        Args: { p_binder_id: string; p_printing_ids: string[]; p_rows: number; p_columns: number }
+        Returns: number
       }
       import_checklist: {
         Args: {

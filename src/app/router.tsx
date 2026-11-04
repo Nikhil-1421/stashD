@@ -1,6 +1,8 @@
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import { AppShell } from '@/components/layout/AppShell'
 import { AuthCallbackPage } from '@/features/auth/AuthCallbackPage'
+import { BinderPage } from '@/features/binders/BinderPage'
+import { BindersPage } from '@/features/binders/BindersPage'
 import { BubbleCheckPage } from '@/features/bubble/BubbleCheckPage'
 import { BubbleSetPickerPage } from '@/features/bubble/BubbleSetPickerPage'
 import { CheckEmailPage } from '@/features/auth/CheckEmailPage'
@@ -51,7 +53,8 @@ export const routes: RouteObject[] = [
               { path: '/sets/:userSetId/edit', element: <SetFormPage /> },
               { path: '/sets/:userSetId/import', element: <ImportPage /> },
               { path: '/sets/:userSetId/bubble', element: <BubbleCheckPage /> },
-              { path: '/binders', element: <PlannedPage /> },
+              { path: '/binders', element: <BindersPage /> },
+              { path: '/binders/:binderId', element: <BinderPage /> },
               { path: '/bubble-check', element: <BubbleSetPickerPage /> },
               { path: '/wishlist', element: <PlannedPage /> },
               { path: '/trade', element: <PlannedPage /> },
