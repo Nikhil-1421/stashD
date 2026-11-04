@@ -130,6 +130,13 @@ erDiagram
 Child tables derive authorization from the parent (`exists (select 1 from binders b where b.id =
 binder_id and b.user_id = auth.uid())`), never from a user-supplied `user_id`.
 
+Note on grants: the hosted Supabase project has default privileges that grant `anon` and
+`authenticated` table-level access to every new object in `public`, so `anon` can *address* tables
+such as `user_sets` and the `user_set_overview` view. RLS is the control that matters: with no
+`anon` policy those reads return an empty set and writes fail with 42501 (verified over REST,
+2026-11-04). The explicit `grant`/`revoke` statements in migrations are belt-and-braces, not the
+security boundary (CLAUDE.md: "frontend filters are not security" applies to grants as well).
+
 ### Index plan
 
 - `catalog_sets (provider_id, provider_set_id)` unique where provider_id not null; `(game_id)`.

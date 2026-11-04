@@ -31,7 +31,7 @@ Acceptance criteria and status:
 
 **Remaining phase-1 slices:**
 - ✅ Account deletion: `delete_own_account()` + typed-email confirmation UI + D-012 (approved by owner
-  2026-11-04). Migration `20261104100000_account_deletion.sql` must be applied via the SQL editor.
+  2026-11-04). Migration `20261104100000_account_deletion.sql` applied via the SQL editor; deletion flow verified by owner.
 - ⬜ Generate DB types from the live schema (`npm run db:types`) and drop the hand-written file.
 - ⬜ Playwright scaffold with the register → login → dashboard smoke test (needs local Supabase).
 
@@ -39,7 +39,7 @@ Acceptance criteria and status:
 
 | Criterion | Status | Evidence |
 | --- | --- | --- |
-| Catalog schema: games, providers, sets, cards, variants, printings; user_sets | ✅ written · ⛔ must be applied via SQL editor | `supabase/migrations/20261104200000_catalog_and_user_sets.sql` |
+| Catalog schema: games, providers, sets, cards, variants, printings; user_sets | ✅ applied to hosted project (SQL editor, 2026-11-04) | `supabase/migrations/20261104200000_catalog_and_user_sets.sql`; REST: 11 games + 3 providers readable by anon, `create_custom_set` denied for anon, anon inserts rejected by RLS, `card_number_sort_key('SV012a')` = `sv0000000012a` |
 | Custom rows owner-scoped by RLS; provider rows public read | ✅ | policies + `catalog_child_sync_owner()` trigger; pgTAP `catalog_rls.test.sql` (unrun: Docker) |
 | Create / edit / delete custom set | ✅ | `/sets/new`, `/sets/:id/edit`, inline delete on detail |
 | Card CRUD with pagination (100/page) and debounced search | ✅ | `features/cards/CardsSection.tsx` |
@@ -47,6 +47,7 @@ Acceptance criteria and status:
 | Natural card-number ordering identical in SQL and TS | ✅ | `card_number_sort_key()` ↔ `cardNumber.ts` + tests |
 | Dashboard shows real set/card counts and recent sets | ✅ | `DashboardPage.tsx` |
 | Tests | ✅ | 48 Vitest tests; 2 pgTAP files pending a local stack |
+| Browser pass of create set → variants → cards → printings | ⬜ | owner to verify against the hosted project |
 
 Deferred to later phases: duplicating a set (phase 3 alongside import), optimistic toggles with
 rollback (phase 5), image/artwork fields in the UI (phase 9), virtualised card table (phase 5).
