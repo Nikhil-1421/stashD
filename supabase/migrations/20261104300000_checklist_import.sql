@@ -52,7 +52,7 @@ declare
   c jsonb;
   card_id uuid;
   existing_id uuid;
-  slug text;
+  v_slug text;
   next_position integer;
   n_created integer := 0;
   n_updated integer := 0;
@@ -92,12 +92,12 @@ begin
   select coalesce(max(position), -1) + 1 into next_position
   from public.variant_definitions where catalog_set_id = p_catalog_set_id;
   for v in select * from jsonb_array_elements(p_variants) loop
-    slug := v->>'slug';
-    if slug is null or slug !~ '^[a-z0-9-]{1,40}$' then
-      raise exception 'invalid variant slug %', slug using errcode = '22023';
+    v_slug := v->>'slug';
+    if v_slug is null or v_slug !~ '^[a-z0-9-]{1,40}$' then
+      raise exception 'invalid variant slug %', v_slug using errcode = '22023';
     end if;
     insert into public.variant_definitions (catalog_set_id, slug, name, category, applies_by_default, position)
-    values (p_catalog_set_id, slug, coalesce(nullif(v->>'name', ''), slug), 'finish', false, next_position)
+    values (p_catalog_set_id, v_slug, coalesce(nullif(v->>'name', ''), v_slug), 'finish', false, next_position)
     on conflict (catalog_set_id, slug) do nothing;
     if found then
       n_variants := n_variants + 1;
@@ -156,8 +156,8 @@ begin
     if jsonb_typeof(c->'variants') = 'array' then
       insert into public.card_printings (catalog_card_id, variant_definition_id)
       select card_id, vd.id
-      from jsonb_array_elements_text(c->'variants') as s(slug)
-      join public.variant_definitions vd on vd.catalog_set_id = p_catalog_set_id and vd.slug = s.slug
+      from jsonb_array_elements_text(c->'variants') as s(variant_slug)
+      join public.variant_definitions vd on vd.catalog_set_id = p_catalog_set_id and vd.slug = s.variant_slug
       on conflict (catalog_card_id, variant_definition_id) do nothing;
       get diagnostics n_rows = row_count;
       n_printings := n_printings + n_rows;
