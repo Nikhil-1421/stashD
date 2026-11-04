@@ -11,6 +11,9 @@ export function describeAuthError(error: AuthError | Error): string {
   const message = error.message || 'Something went wrong.'
   if (/invalid login credentials/i.test(message)) return 'Incorrect email or password.'
   if (/email not confirmed/i.test(message)) return 'Please verify your email address before signing in.'
+  if (/email rate limit/i.test(message)) {
+    return 'Email sending limit reached. This project can only send a few auth emails per hour; try again later or ask the owner to configure custom SMTP.'
+  }
   if (/rate limit|too many requests/i.test(message)) return 'Too many attempts. Please wait a moment and try again.'
   if (/already registered|already been registered/i.test(message)) return 'An account with this email already exists.'
   if (/password should be at least/i.test(message)) return 'Password is too short.'
