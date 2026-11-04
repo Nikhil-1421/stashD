@@ -79,3 +79,11 @@ until then.
 **Update (same day).** The owner created the hosted project `stashD` and applied the migration via the
 SQL editor; `npx supabase link` works with only the login token, but `db push` was refused by the
 CLI without Docker. Hosted project is now the primary environment; local stack remains optional.
+
+## D-011 · Product name is "stashD"; brand kit pending (2026-11-04)
+**Context.** The owner named the product stashD. Logo, colors and fonts are still being designed.
+**Decision.** The name lives in `src/app/brand.ts` (`APP_NAME`) and the logo in
+`components/layout/BrandMark.tsx`; nothing else hard-codes either. Current tokens and the placeholder
+glyph/favicon stay until the kit arrives, then only `brand.ts`, `styles/index.css` and
+`public/favicon.svg` change.
+**Consequences.** Renaming or re-skinning is a three-file change.

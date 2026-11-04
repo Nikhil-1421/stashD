@@ -1,6 +1,7 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { NavLink } from 'react-router'
 import { NAV_ITEMS } from '@/app/navigation'
+import { BrandMark } from './BrandMark'
 import { cn } from '@/lib/utils'
 
 export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
@@ -13,10 +14,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       )}
     >
       <div className={cn('flex h-14 items-center border-b border-line', collapsed ? 'justify-center px-0' : 'gap-2 px-4')}>
-        <span className="grid size-8 shrink-0 place-items-center rounded-md border border-line bg-surface-2" aria-hidden="true">
-          <span className="block size-3 rounded-full bg-accent" />
-        </span>
-        {!collapsed ? <span className="truncate text-sm font-semibold tracking-tight text-fg">Collector</span> : null}
+        <BrandMark showName={!collapsed} to={null} />
       </div>
 
       <nav className="flex-1 overflow-y-auto scrollbar-thin px-2 py-3">

@@ -1,4 +1,4 @@
-# Collector
+# stashD
 
 A universal trading-card collection platform: track sets across games, define what "complete"
 means for you, tap through sets with Bubble Check, and plan physical binders. Private per-user
