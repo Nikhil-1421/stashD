@@ -7,10 +7,11 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useAuth } from '@/features/auth/auth-context'
 import { fetchOwnProfile, profileKeys } from '@/features/profile/api'
+import { binderKeys, listBinders } from '@/features/binders/api'
 import { listUserSets, setDisplayName, setKeys } from '@/features/sets/api'
 import { SetTile } from '@/features/sets/CollectionsPage'
 
-const ONBOARDING_STEPS: readonly { title: string; detail: string; phase: number; to: string | null }[] = [
+const ONBOARDING_STEPS: readonly { title: string; detail: string; phase: number; to: string }[] = [
   { title: 'Create a set', detail: 'Start a custom checklist: name it, add variants, add cards.', phase: 2, to: '/sets/new' },
   { title: 'Import a checklist', detail: 'CSV, TSV, JSON or pasted text, from the Import button on a set.', phase: 3, to: '/sets' },
   { title: 'Choose what counts as complete', detail: 'On a set, untick the variants you do not collect; progress follows your rules.', phase: 4, to: '/sets' },
@@ -24,6 +25,7 @@ export function DashboardPage() {
   const userId = auth.user?.id ?? ''
   const profile = useQuery({ queryKey: profileKeys.detail(userId), queryFn: () => fetchOwnProfile(userId), enabled: userId !== '' })
   const sets = useQuery({ queryKey: setKeys.list(), queryFn: listUserSets, enabled: userId !== '' })
+  const binders = useQuery({ queryKey: binderKeys.list(), queryFn: listBinders, enabled: userId !== '' })
 
   const greetingName = profile.data?.display_name ?? auth.user?.email?.split('@')[0] ?? 'there'
   const setCount = sets.data?.length ?? 0
@@ -32,6 +34,11 @@ export function DashboardPage() {
   const ownedPrintings = (sets.data ?? []).reduce((n, s) => n + s.owned_printings, 0)
   const printingCount = (sets.data ?? []).reduce((n, s) => n + s.printing_count, 0)
   const recent = (sets.data ?? []).slice(0, 6)
+  const toCheck = (sets.data ?? [])
+    .filter((s) => s.printing_count > s.owned_printings)
+    .sort((a, b) => b.printing_count - b.owned_printings - (a.printing_count - a.owned_printings))
+    .slice(0, 3)
+  const recentBinders = (binders.data ?? []).slice(0, 3)
 
   return (
     <>
@@ -43,12 +50,13 @@ export function DashboardPage() {
 
       <section aria-labelledby="stats-heading" className="mb-6">
         <h2 id="stats-heading" className="sr-only">Collection summary</h2>
-        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           {[
             ['Sets tracked', sets.isPending ? null : String(setCount)],
             ['Catalog cards', sets.isPending ? null : String(cardCount)],
             ['Owned copies', sets.isPending ? null : String(ownedQuantity)],
             ['Printings owned', sets.isPending ? null : `${ownedPrintings} / ${printingCount}`],
+            ['Binders', binders.isPending ? null : String(binders.data?.length ?? 0)],
           ].map(([label, value]) => (
             <div key={label} className="rounded-lg border border-line bg-surface-1 px-4 py-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-fg-subtle">{label}</dt>
@@ -74,33 +82,89 @@ export function DashboardPage() {
         </section>
       ) : null}
 
+      {setCount > 0 ? (
+        <div className="mb-6 grid gap-5 lg:grid-cols-2">
+          <section aria-labelledby="check-heading" className="rounded-lg border border-line bg-surface-1 p-5">
+            <h2 id="check-heading" className="text-base font-semibold text-fg">Keep checking</h2>
+            <p className="mt-1 text-sm text-fg-muted">Sets with the most printings still unowned (before your requirement rules).</p>
+            {toCheck.length === 0 ? (
+              <p className="mt-3 text-sm text-fg-muted">Every printing in your sets is owned. Nice.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {toCheck.map((s) => (
+                  <li key={s.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                    <span className="min-w-0 truncate text-fg">{setDisplayName(s)}</span>
+                    <span className="flex shrink-0 items-center gap-3">
+                      <span className="font-mono text-xs text-fg-muted">{s.printing_count - s.owned_printings} to go</span>
+                      <ButtonLink to={`/sets/${s.id}/bubble`} variant="secondary" size="sm">Bubble Check</ButtonLink>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section aria-labelledby="binders-heading" className="rounded-lg border border-line bg-surface-1 p-5">
+            <div className="flex items-end justify-between">
+              <h2 id="binders-heading" className="text-base font-semibold text-fg">Binders</h2>
+              <Link to="/binders" className="text-sm text-fg-muted underline-offset-4 hover:text-fg hover:underline">All binders</Link>
+            </div>
+            {binders.isPending ? (
+              <Skeleton className="mt-3 h-16 w-full" />
+            ) : recentBinders.length === 0 ? (
+              <p className="mt-3 text-sm text-fg-muted">No binders yet. <Link to="/binders" className="underline-offset-4 hover:underline">Plan one</Link> and fill it from any set.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {recentBinders.map((b) => (
+                  <li key={b.id}>
+                    <Link to={`/binders/${b.id}`} className="flex items-center justify-between gap-3 py-2 text-sm text-fg hover:text-accent">
+                      <span className="min-w-0 truncate">{b.name}</span>
+                      <span className="shrink-0 font-mono text-xs text-fg-muted">{b.page_count} {b.page_count === 1 ? 'page' : 'pages'} · {b.placement_count}/{b.slot_count}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      ) : null}
+
       <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>{setCount === 0 ? 'Getting started' : 'What is next'}</CardTitle>
-            <CardDescription>Steps marked with a phase number are not built yet.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ol className="space-y-3">
-              {ONBOARDING_STEPS.map((step, i) => (
-                <li key={step.title} className="flex gap-3 rounded-md border border-line bg-surface-2 p-3">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line font-mono text-xs text-fg-muted" aria-hidden="true">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-fg">
-                      {step.to ? <Link to={step.to} className="underline-offset-4 hover:underline">{step.title}</Link> : step.title}
-                    </p>
-                    <p className="text-sm text-fg-muted">{step.detail}</p>
-                  </div>
-                  {step.to ? (
-                    <span className="self-start rounded-sm border border-success/30 bg-success-soft px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-success">Available</span>
-                  ) : (
-                    <span className="self-start rounded-sm border border-line px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-fg-subtle">Phase {step.phase}</span>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </CardContent>
-        </Card>
+        {setCount === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Getting started</CardTitle>
+              <CardDescription>The app in five steps.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="space-y-3">
+                {ONBOARDING_STEPS.map((step, i) => (
+                  <li key={step.title} className="flex gap-3 rounded-md border border-line bg-surface-2 p-3">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line font-mono text-xs text-fg-muted" aria-hidden="true">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-fg">
+                        <Link to={step.to} className="underline-offset-4 hover:underline">{step.title}</Link>
+                      </p>
+                      <p className="text-sm text-fg-muted">{step.detail}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick actions</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              <ButtonLink to="/sets/new" variant="secondary" size="sm">New custom set</ButtonLink>
+              <ButtonLink to="/sets" variant="secondary" size="sm">Import into a set</ButtonLink>
+              <ButtonLink to="/bubble-check" variant="secondary" size="sm">Bubble Check</ButtonLink>
+              <ButtonLink to="/binders" variant="secondary" size="sm">Binders</ButtonLink>
+              <ButtonLink to="/search" variant="secondary" size="sm">Search</ButtonLink>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { useSearchParams } from 'react-router'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { InlineConfirm } from '@/components/ui/InlineConfirm'
@@ -25,7 +26,8 @@ export function CardsSection({ setId, editable, variants, collection }: Props) {
   const queryClient = useQueryClient()
   const [mode, setMode] = useState<Mode>('collect')
   const [page, setPage] = useState(0)
-  const [search, setSearch] = useState('')
+  const [params] = useSearchParams()
+  const [search, setSearch] = useState(params.get('q') ?? '')
   const term = useDebouncedValue(search.trim(), 300)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [detailsId, setDetailsId] = useState<string | null>(null)

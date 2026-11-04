@@ -130,8 +130,8 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | --- | --- | --- |
 | Route-level code splitting + vendor chunks | ✅ initial app chunk ~23 kB; react / supabase / query / dnd / vendor chunks cached separately; pages lazy with a shell loading bar | `src/app/router.tsx`, `vite.config.ts`, `AppShell.tsx` |
 | Bubble Check large-set viewing: Compact density (default on pointer devices, 44×30 px pills), sticky status/search bar with jump links per 100 pills and the current section highlighted, heading rows in the grid, status filter remembered per device | ✅ | `bubble-styles.ts` (`GEOMETRY`), `BubbleGrid.tsx` (sections, handle), `domain/bubbles.ts#sectionsOf` (tests) |
-| Dashboard: progress overview, missing quick access, recent binders | ⬜ | |
-| Global search across sets and cards | ⬜ | |
+| Dashboard: stats incl. binders, recent sets with progress bars, "Keep checking" (most unowned → Bubble Check), recent binders, quick actions; onboarding only for empty accounts | ✅ | `DashboardPage.tsx`, `SetTile` |
+| Global search: `/search?q=` over sets, binders (by name) and cards (name/number, server-side, across tracked sets); top-bar box with `/` shortcut, icon on mobile; card hits open the set with the table pre-filtered | ✅ | `features/search/*` (tests), `TopBar.tsx` |
 | Bulk operations on the set page (selection + mark / exclude) | ⬜ | |
 | Per-set manual card order mode (unblocks checklist drag reorder) | ⬜ needs migration | |
 | Per-set notes (reference feature) | ⬜ needs migration | |

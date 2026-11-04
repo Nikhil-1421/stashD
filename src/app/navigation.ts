@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Library,
   ListChecks,
+  Search,
   Settings,
   type LucideIcon,
 } from 'lucide-react'
@@ -28,6 +29,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/sets', label: 'Collections', icon: Library, status: 'ready', phase: 2, primary: true },
   { to: '/binders', label: 'Binders', icon: BookOpen, status: 'ready', phase: 6, primary: true },
   { to: '/bubble-check', label: 'Bubble Check', icon: CircleDot, status: 'ready', phase: 5, primary: true },
+  { to: '/search', label: 'Search', icon: Search, status: 'ready', phase: 7, primary: false },
   { to: '/wishlist', label: 'Wishlist', icon: Heart, status: 'planned', phase: 8, primary: false },
   { to: '/trade', label: 'Trade', icon: ArrowLeftRight, status: 'planned', phase: 8, primary: false },
   { to: '/checklists', label: 'Checklist Library', icon: ListChecks, status: 'planned', phase: 8, primary: false },

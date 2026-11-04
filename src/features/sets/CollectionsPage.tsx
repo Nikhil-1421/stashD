@@ -96,7 +96,12 @@ export function SetTile({ set }: { set: UserSetOverview }) {
       <p className="mt-0.5 truncate text-xs text-fg-muted">
         {[set.game_name, set.set_code, year].filter(Boolean).join(' · ') || 'No game assigned'}
       </p>
-      <p className="mt-3 font-mono text-xs text-fg-subtle">
+      {set.printing_count > 0 ? (
+        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-surface-3" aria-hidden="true">
+          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.round((set.owned_printings / set.printing_count) * 100)}%` }} />
+        </div>
+      ) : null}
+      <p className="mt-2 font-mono text-xs text-fg-subtle">
         {set.card_count} {set.card_count === 1 ? 'card' : 'cards'} · {set.variant_count} {set.variant_count === 1 ? 'variant' : 'variants'}
         {set.printing_count > 0 ? ` · ${set.owned_printings}/${set.printing_count} owned` : ''}
         {set.set_owner_id ? ' · custom' : ''}

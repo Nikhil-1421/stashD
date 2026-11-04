@@ -42,9 +42,9 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Phase 7 in progress: code splitting ✅, Bubble Check large-set layout ✅ (browser pass pending:
-   Compact chip, jump strip, heading rows, remembered status); next dashboard + global search, bulk
-   ops on the set page, a per-set manual-order mode, per-set notes.
+1. Phase 7 in progress: code splitting ✅, Bubble Check large-set layout ✅, dashboard ✅, global
+   search ✅ (all pending an owner browser pass); next: migration 0008 (per-set notes + manual card
+   order + reorder RPC), bulk ops on the set page.
 2. Dev server now listens on the LAN by default (`server.host = true`, owner request 2026-11-04);
    the owner tests on a phone via the Network URL Vite prints.
 ## Code map (where things are)
@@ -53,6 +53,9 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   FormField, Card*, Alert, Skeleton, Spinner, InlineConfirm, EmptyState). Layout in `components/layout/`.
 - `src/features/auth` (AuthProvider, guards, pages, `describeAuthError`), `profile` (settings,
   deletion), `entitlements` (policy interface, free plan; `can('sets.import')` etc.).
+- `src/features/search` `SearchPage` (`/search?q=`), `api.ts` (`searchCards` across tracked sets). Top-bar
+  search form lives in `components/layout/TopBar.tsx` (`/` shortcut). `CardsSection` and the set page
+  accept `?q=` to pre-filter the table.
 - `src/features/sets` Collections list/tiles, set form, `SetDetailPage` (owner check via
   `set_owner_id === auth.user.id`; renders progress + variants + cards).
 - `src/features/cards` `CardsSection` (two modes: Collect = owned toggles + Details row; Edit

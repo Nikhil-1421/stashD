@@ -34,6 +34,7 @@ export const routes: RouteObject[] = [
             children: [
               { index: true, lazy: page(() => import('@/features/dashboard/DashboardPage'), 'DashboardPage') },
               { path: '/settings', lazy: page(() => import('@/features/profile/SettingsPage'), 'SettingsPage') },
+              { path: '/search', lazy: page(() => import('@/features/search/SearchPage'), 'SearchPage') },
               { path: '/more', lazy: page(() => import('@/pages/MorePage'), 'MorePage') },
               { path: '/sets', lazy: page(() => import('@/features/sets/CollectionsPage'), 'CollectionsPage') },
               { path: '/sets/new', lazy: page(() => import('@/features/sets/SetFormPage'), 'SetFormPage') },

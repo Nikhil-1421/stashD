@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { renderWithProviders, signedInAs } from '@/test/render'
+import { renderRoutes, signedInAs } from '@/test/render'
 import { CardsSection } from '@/features/cards/CardsSection'
 import type { CatalogCard, VariantDefinition } from '@/features/cards/api'
 import type { CollectionItem, PrintingRow } from '@/features/collection/api'
@@ -49,7 +49,7 @@ describe('CardsSection collect mode', () => {
   })
 
   it('marks a printing owned optimistically and counts it against the requirements', async () => {
-    renderWithProviders(<Harness />, { auth: signedInAs() })
+    renderRoutes([{ path: '/', element: <Harness /> }], { auth: signedInAs() })
     const cell = await screen.findByRole('button', { name: 'Pikachu Base: not owned' })
     expect(screen.getByTestId('progress')).toHaveTextContent('0/1')
     expect(screen.getByRole('button', { name: 'Pikachu Reverse Holo: not owned, not required' })).toBeInTheDocument()
@@ -63,7 +63,7 @@ describe('CardsSection collect mode', () => {
 
   it('rolls back and shows the error when the server rejects the change', async () => {
     setItemImpl = () => Promise.reject(new Error('permission denied for table collection_items'))
-    renderWithProviders(<Harness />, { auth: signedInAs() })
+    renderRoutes([{ path: '/', element: <Harness /> }], { auth: signedInAs() })
     await userEvent.click(await screen.findByRole('button', { name: 'Pikachu Base: not owned' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(/permission denied/)
     expect(screen.getByRole('button', { name: 'Pikachu Base: not owned' })).toHaveAttribute('aria-pressed', 'false')
