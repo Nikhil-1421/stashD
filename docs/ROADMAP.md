@@ -149,12 +149,14 @@ Checklist Library (publish / browse / track / copy).
 | Owner deleting a published set warns about other collectors | ✅ | `SetDetailPage.tsx` |
 | Wishlist / trade status | ⬜ parked by owner | |
 | Public share links (`collection_shares`) | ⬜ parked by owner | |
-## Brand pass ✅ code + checks (2026-11-04); owner review pending
-Brand kit applied across the app (D-023): Space Grotesk Light/Regular, Stash Ink + Metallic Gold
+## Brand pass ✅ approved by owner (2026-11-04)
+Brand kit applied across the app (D-023): Space Grotesk variable font, Stash Ink + Metallic Gold
 tokens, gold-gradient primary button, kit logo/lockup/D-card, favicons + manifest + share image,
-starfield background, slightly translucent surfaces. Verified with headless-Chrome screenshots of
-the shell, components and login at desktop and phone widths. Also fixed here: Bubble Check grid
-stayed one column wide in dev (StrictMode) because its measurement effect kept a stale frame handle.
+starfield background, translucent surfaces. Verified with headless-Chrome screenshots of the
+shell, components and login at desktop and phone widths. Owner tuned it over three rounds and
+signed off on: star count = viewport area / 1350 (260–1400), surfaces at 44 / 54 / 66 % opacity,
+type weights 350 (headings) / 500 (body). Also fixed here: Bubble Check grid stayed one column wide
+in dev (StrictMode) because its measurement effect kept a stale frame handle.
 
 ## Phase 9 — Curated set catalog (bulk upload) ⬜ (owner request 2026-11-04)
 Bulk-upload many sets so collectors can browse and pick from a ready-made catalog instead of
