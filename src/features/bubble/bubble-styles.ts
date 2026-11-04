@@ -1,10 +1,23 @@
 import type { BubbleState } from './domain/bubbles'
 
-/** Fixed pill geometry so the grid can be virtualised by row (px). */
-export const PILL_WIDTH = 56
-export const PILL_HEIGHT = 40
-export const PILL_GAP = 6
-export const ROW_HEIGHT = PILL_HEIGHT + PILL_GAP
+/** Pill geometry (px) per density; fixed so the grid can be virtualised by row. */
+export type Density = 'comfortable' | 'compact'
+export type Geometry = { pillWidth: number; pillHeight: number; gap: number }
+
+export const GEOMETRY: Record<Density, Geometry> = {
+  comfortable: { pillWidth: 56, pillHeight: 40, gap: 6 },
+  compact: { pillWidth: 44, pillHeight: 30, gap: 4 },
+}
+
+export function isDensity(v: unknown): v is Density {
+  return v === 'comfortable' || v === 'compact'
+}
+
+/** Compact on pointer devices, comfortable (40 px targets) where the primary input is touch. */
+export function defaultDensity(): Density {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'comfortable'
+  return window.matchMedia('(pointer: coarse)').matches ? 'comfortable' : 'compact'
+}
 
 export const PILL_BASE =
   'inline-flex shrink-0 items-center justify-center rounded-md border font-mono text-xs leading-none select-none transition-colors disabled:cursor-wait'

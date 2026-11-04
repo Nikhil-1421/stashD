@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { renderWithProviders } from '@/test/render'
 import { BubbleGrid } from './BubbleGrid'
-import type { Bubble } from './domain/bubbles'
+import { GEOMETRY } from './bubble-styles'
+import { sectionsOf, type Bubble } from './domain/bubbles'
 
 const bubble = (n: number, state: Bubble['state'] = 'missing'): Bubble => ({
   key: `printing:p${n}`, unit: 'printing', cardId: `c${n}`, printingIds: [`p${n}`], label: String(n), number: String(n), name: `Card ${n}`, variantId: 'v', variantName: 'Base', rarity: null, state, quantity: state === 'owned' ? 1 : 0, required: state !== 'excluded',
@@ -43,5 +44,24 @@ describe('BubbleGrid keyboard support', () => {
     await user.click(screen.getByRole('button', { name: 'Card 3 Base: missing' }))
     await user.keyboard('{/Shift}')
     expect(onSelect).toHaveBeenLastCalledWith(bubbles[2], true)
+  })
+})
+
+describe('BubbleGrid sections', () => {
+  it('renders a heading row per section, keeps arrow navigation across them, and reports the current section', async () => {
+    const many = Array.from({ length: 5 }, (_, i) => bubble(i + 1))
+    const sections = sectionsOf(many, 2)
+    const onCurrent = vi.fn()
+    renderWithProviders(<BubbleGrid bubbles={many} sections={sections} geometry={GEOMETRY.compact} onCurrentSectionChange={onCurrent} selected={new Set()} selecting={false} pending={new Set()} disabled={false} onToggle={() => {}} onSelect={() => {}} aria-label="Cards" />)
+    expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['1 – 22', '3 – 42', '51'])
+    expect(onCurrent).toHaveBeenLastCalledWith(0)
+
+    await userEvent.tab()
+    expect(screen.getByRole('button', { name: 'Card 1 Base: missing' })).toHaveFocus()
+    // One column in jsdom: Down skips the heading row between sections.
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}')
+    expect(screen.getByRole('button', { name: 'Card 3 Base: missing' })).toHaveFocus()
+    await userEvent.keyboard('{ArrowUp}')
+    expect(screen.getByRole('button', { name: 'Card 2 Base: missing' })).toHaveFocus()
   })
 })

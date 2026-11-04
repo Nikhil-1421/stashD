@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { CardStatus } from '@/features/collection/domain/completion'
 import type { PrintingRef } from '@/features/collection/domain/requirements'
-import { buildBubbles, filterBubbles, rangeKeys, toggleWrites, variantSuffixes, type Bubble, type BubbleCard } from './bubbles'
+import { buildBubbles, filterBubbles, rangeKeys, sectionsOf, toggleWrites, variantSuffixes, type Bubble, type BubbleCard } from './bubbles'
 
 const variants = [
   { id: 'v-base', name: 'Base' },
@@ -107,5 +107,17 @@ describe('toggleWrites', () => {
   it('owns every printing of a card that has no requirements at all', () => {
     const [c1] = buildBubbles({ unit: 'card', cards, variants, printings, required: new Set(), owned: new Map(), byCard: byCard({ c1: { status: 'excluded', required: 0, owned: 0 } }) })
     expect(toggleWrites(c1!, new Map(), new Set())).toEqual([{ printingId: 'p1b', quantity: 1 }, { printingId: 'p1r', quantity: 1 }])
+  })
+})
+
+describe('sectionsOf', () => {
+  const all = buildBubbles({ unit: 'printing', cards, variants, printings, required: new Set(), owned: new Map(), byCard: new Map() })
+  it('splits into runs labelled by their first and last pill', () => {
+    expect(sectionsOf(all, 3)).toEqual([
+      { start: 0, end: 3, label: '1 – 25', shortLabel: '1' },
+      { start: 3, end: 4, label: '25h', shortLabel: '25h' },
+    ])
+    expect(sectionsOf([], 3)).toEqual([])
+    expect(sectionsOf(all, 0)).toEqual([])
   })
 })

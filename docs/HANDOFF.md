@@ -42,8 +42,9 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Phase 7 in progress: code splitting ✅; next the Bubble Check large-set layout, then dashboard,
-   global search, bulk ops on the set page, a per-set manual-order mode, per-set notes.
+1. Phase 7 in progress: code splitting ✅, Bubble Check large-set layout ✅ (browser pass pending:
+   Compact chip, jump strip, heading rows, remembered status); next dashboard + global search, bulk
+   ops on the set page, a per-set manual-order mode, per-set notes.
 2. Dev server now listens on the LAN by default (`server.host = true`, owner request 2026-11-04);
    the owner tests on a phone via the Network URL Vite prints.
 ## Code map (where things are)

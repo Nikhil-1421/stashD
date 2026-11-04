@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Alert } from '@/components/ui/Alert'
@@ -21,9 +21,9 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useLocalStorageState } from '@/hooks/useLocalStorageState'
 import type { RequirementScope } from '@/lib/supabase/database.types'
 import { cn } from '@/lib/utils'
-import { BubbleGrid } from './BubbleGrid'
-import { PILL_BASE, PILL_STATE } from './bubble-styles'
-import { buildBubbles, distinctRarities, EMPTY_FILTER, filterBubbles, isBubbleUnit, matchesStatus, rangeKeys, toggleWrites, type Bubble, type BubbleFilter, type BubbleState, type BubbleStatusFilter, type BubbleUnit } from './domain/bubbles'
+import { BubbleGrid, type BubbleGridHandle } from './BubbleGrid'
+import { defaultDensity, GEOMETRY, isDensity, PILL_BASE, PILL_STATE, type Density } from './bubble-styles'
+import { buildBubbles, distinctRarities, EMPTY_FILTER, filterBubbles, isBubbleUnit, matchesStatus, rangeKeys, sectionsOf, toggleWrites, type Bubble, type BubbleFilter, type BubbleState, type BubbleStatusFilter, type BubbleUnit } from './domain/bubbles'
 import { COPY_FORMATS, formatBubbles, isCopyFormat, type CopyFormat } from './domain/clipboard'
 import { UndoToast } from '@/components/ui/UndoToast'
 import { useUndoStack } from '@/hooks/useUndoStack'
@@ -35,6 +35,8 @@ const STATUS_FILTERS: readonly { value: BubbleStatusFilter; label: string }[] = 
   { value: 'excluded', label: 'Not required' },
 ]
 const MAX_RARITY_CHIPS = 10
+const SECTION_SIZE = 100
+const isStatusFilter = (v: unknown): v is BubbleStatusFilter => STATUS_FILTERS.some((f) => f.value === v)
 const EMPTY_SELECTION: ReadonlySet<string> = new Set()
 
 type CopyResult = { kind: 'copied'; count: number; listName: string } | { kind: 'fallback'; text: string; listName: string }
@@ -51,7 +53,12 @@ export function BubbleCheckPage() {
   useDocumentTitle(set.data ? `Bubble Check · ${setName}` : 'Bubble Check')
 
   const [storedUnit, setStoredUnit] = useLocalStorageState<BubbleUnit>('bubble.unit', 'printing', isBubbleUnit)
-  const [filter, setFilter] = useState<BubbleFilter>(EMPTY_FILTER)
+  const [storedStatus, setStoredStatus] = useLocalStorageState<BubbleStatusFilter>('bubble.status', 'all', isStatusFilter)
+  const [filter, setFilter] = useState<BubbleFilter>({ ...EMPTY_FILTER, status: storedStatus })
+  const [density, setDensity] = useLocalStorageState<Density>('bubble.density', defaultDensity(), isDensity)
+  const gridRef = useRef<BubbleGridHandle>(null)
+  const [currentSection, setCurrentSection] = useState(0)
+  const onCurrentSectionChange = useCallback((i: number) => setCurrentSection(i), [])
   const [search, setSearch] = useState('')
   const term = useDebouncedValue(search, 200)
   const [selecting, setSelecting] = useState(false)
@@ -70,6 +77,7 @@ export function BubbleCheckPage() {
   )
   const activeFilter = useMemo<BubbleFilter>(() => ({ ...filter, search: term }), [filter, term])
   const visible = useMemo(() => filterBubbles(bubbles, activeFilter), [bubbles, activeFilter])
+  const sections = useMemo(() => (visible.length > SECTION_SIZE ? sectionsOf(visible, SECTION_SIZE) : []), [visible])
   const rarities = useMemo(() => distinctRarities(cards.data ?? []), [cards.data])
   const statusCounts = useMemo(() => {
     const scoped = filterBubbles(bubbles, { ...activeFilter, status: 'all' })
@@ -201,18 +209,6 @@ export function BubbleCheckPage() {
         {collection.mutationError && !actionError ? <Alert tone="danger">{collection.mutationError.message}</Alert> : null}
 
         <section aria-label="Filters" className="space-y-3 rounded-lg border border-line bg-surface-1 px-4 py-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div role="group" aria-label="Status" className="flex flex-wrap gap-1">
-              {STATUS_FILTERS.map((f) => (
-                <Chip key={f.value} active={filter.status === f.value} onClick={() => setFilter((cur) => ({ ...cur, status: f.value }))}>
-                  {f.label}
-                  <span className="font-mono text-[11px] text-fg-subtle">{statusCounts[f.value]}</span>
-                </Chip>
-              ))}
-            </div>
-            <Input type="search" aria-label="Search by name or number" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-48 text-sm" />
-          </div>
-
           {multiVariant ? (
             <div role="group" aria-label="Variant" className="flex flex-wrap gap-1">
               <Chip active={filter.variantId === null} onClick={() => setFilter((cur) => ({ ...cur, variantId: null }))}>All variants</Chip>
@@ -293,6 +289,39 @@ export function BubbleCheckPage() {
           </div>
         ) : null}
 
+        <div className="sticky top-14 z-10 -mx-1 space-y-2 border-b border-line bg-canvas/95 px-1 py-2 backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div role="group" aria-label="Status" className="flex flex-wrap gap-1">
+              {STATUS_FILTERS.map((f) => (
+                <Chip key={f.value} active={filter.status === f.value} onClick={() => { setFilter((cur) => ({ ...cur, status: f.value })); setStoredStatus(f.value) }}>
+                  {f.label}
+                  <span className="font-mono text-[11px] text-fg-subtle">{statusCounts[f.value]}</span>
+                </Chip>
+              ))}
+            </div>
+            <span className="flex items-center gap-2">
+              <Chip active={density === 'compact'} onClick={() => setDensity((d) => (d === 'compact' ? 'comfortable' : 'compact'))} title="Smaller pills, more per row">Compact</Chip>
+              <Input type="search" aria-label="Search by name or number" placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} className="h-8 w-40 text-sm sm:w-48" />
+            </span>
+          </div>
+          {sections.length > 1 ? (
+            <nav aria-label="Jump to" className="flex gap-1 overflow-x-auto pb-0.5 scrollbar-thin">
+              {sections.map((sec, i) => (
+                <button
+                  key={sec.start}
+                  type="button"
+                  aria-current={i === currentSection ? 'true' : undefined}
+                  onClick={() => gridRef.current?.scrollToSection(i)}
+                  className={cn('h-6 shrink-0 rounded px-2 font-mono text-[11px] transition-colors', i === currentSection ? 'bg-surface-3 text-fg' : 'text-fg-muted hover:bg-surface-2 hover:text-fg')}
+                  title={sec.label}
+                >
+                  {sec.shortLabel}
+                </button>
+              ))}
+            </nav>
+          ) : null}
+        </div>
+
         {!ready && !loadError ? (
           <Skeleton className="h-64 w-full" />
         ) : bubbles.length === 0 ? (
@@ -300,7 +329,7 @@ export function BubbleCheckPage() {
         ) : visible.length === 0 ? (
           <p className="py-10 text-center text-sm text-fg-muted">No cards match these filters.</p>
         ) : (
-          <BubbleGrid bubbles={visible} selected={selected} selecting={selecting} pending={collection.pendingPrintings} disabled={!ready} onToggle={toggle} onSelect={select} aria-label={`${setName} cards`} />
+          <BubbleGrid ref={gridRef} bubbles={visible} selected={selected} selecting={selecting} pending={collection.pendingPrintings} disabled={!ready} geometry={GEOMETRY[density]} sections={sections} onCurrentSectionChange={onCurrentSectionChange} onToggle={toggle} onSelect={select} aria-label={`${setName} cards`} />
         )}
 
         <footer className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-fg-muted">

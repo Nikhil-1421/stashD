@@ -100,7 +100,7 @@ The Checklist Library nav item now points at phase 8 (shared/public checklists) 
 | Routes `/bubble-check` (set picker) and `/sets/:id/bubble`; links from set page and dashboard | ✅ | `BubbleSetPickerPage.tsx`, `router.tsx` |
 | Browser pass on the hosted project (bulk upsert path, touch targets, mobile toolbar) | ⬜ owner | |
 | Per-set notes (reference feature) | ⬜ moved to phase 7 | |
-| Large-set viewing (owner-approved 2026-11-04, deferred): desktop pill density setting, sticky filter bar with number-range jump links and sticky section headings, status filter remembered per device; later cards-by-default for multi-variant sets and collapsible rarity groups | ⬜ phase 7 | design in session notes; no schema change |
+| Large-set viewing | ✅ delivered in phase 7 (density, sticky bar + jump links, heading rows, remembered status); cards-by-default and collapsible rarity groups still open | |
 
 No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set_requirements` under the existing RLS (D-018).
 
@@ -129,7 +129,7 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Criterion | Status | Evidence |
 | --- | --- | --- |
 | Route-level code splitting + vendor chunks | ✅ initial app chunk ~23 kB; react / supabase / query / dnd / vendor chunks cached separately; pages lazy with a shell loading bar | `src/app/router.tsx`, `vite.config.ts`, `AppShell.tsx` |
-| Bubble Check large-set viewing (density, sticky toolbar + range jump links, remembered status filter) | ⬜ next | |
+| Bubble Check large-set viewing: Compact density (default on pointer devices, 44×30 px pills), sticky status/search bar with jump links per 100 pills and the current section highlighted, heading rows in the grid, status filter remembered per device | ✅ | `bubble-styles.ts` (`GEOMETRY`), `BubbleGrid.tsx` (sections, handle), `domain/bubbles.ts#sectionsOf` (tests) |
 | Dashboard: progress overview, missing quick access, recent binders | ⬜ | |
 | Global search across sets and cards | ⬜ | |
 | Bulk operations on the set page (selection + mark / exclude) | ⬜ | |

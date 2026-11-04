@@ -193,3 +193,19 @@ export function bubbleStateLabel(state: BubbleState): string {
     case 'excluded': return 'not required'
   }
 }
+
+/** A contiguous run of bubbles, labelled by its first and last pill, for orientation in long lists. */
+export type BubbleSection = { start: number; end: number; label: string; shortLabel: string }
+
+export function sectionsOf(bubbles: readonly Bubble[], size: number): BubbleSection[] {
+  const out: BubbleSection[] = []
+  if (size <= 0) return out
+  for (let start = 0; start < bubbles.length; start += size) {
+    const end = Math.min(bubbles.length, start + size)
+    const first = bubbles[start]
+    const last = bubbles[end - 1]
+    if (!first || !last) break
+    out.push({ start, end, label: first === last ? first.label : `${first.label} – ${last.label}`, shortLabel: first.label })
+  }
+  return out
+}
