@@ -98,3 +98,31 @@ the local session and shows a notice on the login page.
 **Consequences.** Every future user-owned table must reference `auth.users`/`profiles` with
 `on delete cascade` (checked in review). Storage objects (phase 9) need an explicit cleanup step in the
 same function. Recovery after deletion is impossible by design.
+
+## D-013 · Custom catalog rows live in the shared catalog tables with `owner_id` (2026-11-04)
+**Context.** The blueprint left open whether user-created sets/cards are separate tables or
+owner-scoped catalog rows.
+**Decision.** One set of catalog tables. Provider rows have `owner_id null` (public read, no user
+writes); custom rows carry `owner_id` and are visible only to the owner. Children (cards, variants,
+printings) mirror the parent's `owner_id` via a BEFORE trigger that runs as the caller, so a user
+cannot attach rows to a set they cannot see. A CHECK keeps provider/custom origins mutually exclusive.
+**Consequences.** No per-user duplication of provider data; one query path for both origins; simple
+indexable policies. Promoting a custom set to shared would be an explicit admin operation later.
+
+## D-014 · Printings are materialised rows, auto-created by triggers (2026-11-04)
+**Context.** The reference encodes "variant does not exist for this card" as `-1`. We need the same
+sparse matrix without the client writing N×M rows by hand.
+**Decision.** `card_printings` rows exist only where a card comes in a variant. Inserting a card
+creates printings for every variant with `applies_by_default`; inserting such a variant creates
+printings for every existing card. Users untick a cell to delete the printing. Creating a custom set
+seeds one `base` variant through `create_custom_set()` so cards are ownable immediately.
+**Consequences.** Ownership, wishlist, trade and binder placements (later) all reference a printing
+id. Deleting a variant deletes its printings and, later, ownership rows that reference them, so the UI
+confirms the action.
+
+## D-015 · `user_set_overview` view with `security_invoker` for list screens (2026-11-04)
+**Context.** The Collections list needs joined game fields and counts without aggregate-enabled
+PostgREST or N+1 requests.
+**Decision.** A view with `security_invoker = true` so the caller's RLS applies to every underlying
+table; counts are correlated subqueries (fine at hundreds of sets; revisit with materialisation if
+needed).

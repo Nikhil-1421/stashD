@@ -38,6 +38,26 @@ SECURITY DEFINER function, `authenticated` only, no arguments. Deletes the calle
 row; `profiles` (and all future owned tables) cascade. Raises `42501` when called without a
 session. Irreversible (D-012).
 
+### Catalog layer + user_sets — migration `20261104200000_catalog_and_user_sets.sql`
+
+| Table | Purpose | Ownership / RLS |
+| --- | --- | --- |
+| `games` | franchise reference data (seeded: Pokémon, Magic, Yu-Gi-Oh!, Lorcana, One Piece, F1, basketball, football, baseball, soccer, other) | public read, no user writes |
+| `catalog_providers` | adapter registry with terms/attribution (seeded: tcgdex, scryfall, ygoprodeck as `planned`) | public read |
+| `catalog_sets` | provider sets (`provider_id`+`provider_set_id`, `owner_id null`) or custom sets (`owner_id`) | read: shared or own; write: owner only |
+| `catalog_cards` | card identity; `sort_key` generated from `number`; trigram index on `name` | mirrors set owner (trigger) |
+| `variant_definitions` | per-set taxonomy (`slug` unique per set; `category`; `applies_by_default`) | mirrors set owner |
+| `card_printings` | card × variant existence; unique pair; variant must belong to the card's set (trigger) | mirrors card owner |
+| `user_sets` | user ↔ catalog set tracking; unique `(user_id, catalog_set_id)` | owner only |
+| `user_set_overview` (view) | joined fields + `card_count`, `variant_count`; `security_invoker` | caller's RLS |
+
+Functions: `card_number_sort_key(text)` (immutable), `create_custom_set(...)` (security invoker;
+set + `base` variant + tracking row), triggers `catalog_child_sync_owner`,
+`catalog_cards_create_default_printings`, `variant_definitions_create_default_printings`.
+
+Indexes: provider keys (partial unique), `(catalog_set_id, sort_key, position)`, owner partial
+indexes, `(user_id, status)`, trigram on card name.
+
 ## Target model (phases 2–8)
 
 ```mermaid

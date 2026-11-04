@@ -23,3 +23,10 @@ export function getSupabase(): AppSupabaseClient | null {
   })
   return client
 }
+
+/** Like getSupabase() but throws; for data-layer code that is only reachable when signed in. */
+export function requireSupabase(): AppSupabaseClient {
+  const client = getSupabase()
+  if (!client) throw new Error('Supabase is not configured.')
+  return client
+}

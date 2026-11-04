@@ -9,6 +9,9 @@ import { RegisterPage } from '@/features/auth/RegisterPage'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { SettingsPage } from '@/features/profile/SettingsPage'
+import { CollectionsPage } from '@/features/sets/CollectionsPage'
+import { SetDetailPage } from '@/features/sets/SetDetailPage'
+import { SetFormPage } from '@/features/sets/SetFormPage'
 import { MorePage } from '@/pages/MorePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { PlannedPage } from '@/pages/PlannedPage'
@@ -39,7 +42,10 @@ export const routes: RouteObject[] = [
               { index: true, element: <DashboardPage /> },
               { path: '/settings', element: <SettingsPage /> },
               { path: '/more', element: <MorePage /> },
-              { path: '/sets', element: <PlannedPage /> },
+              { path: '/sets', element: <CollectionsPage /> },
+              { path: '/sets/new', element: <SetFormPage /> },
+              { path: '/sets/:userSetId', element: <SetDetailPage /> },
+              { path: '/sets/:userSetId/edit', element: <SetFormPage /> },
               { path: '/binders', element: <PlannedPage /> },
               { path: '/bubble-check', element: <PlannedPage /> },
               { path: '/wishlist', element: <PlannedPage /> },

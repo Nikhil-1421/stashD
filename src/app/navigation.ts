@@ -25,7 +25,7 @@ export type NavItem = {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, status: 'ready', phase: 1, primary: true },
-  { to: '/sets', label: 'Collections', icon: Library, status: 'planned', phase: 2, primary: true },
+  { to: '/sets', label: 'Collections', icon: Library, status: 'ready', phase: 2, primary: true },
   { to: '/binders', label: 'Binders', icon: BookOpen, status: 'planned', phase: 6, primary: true },
   { to: '/bubble-check', label: 'Bubble Check', icon: CircleDot, status: 'planned', phase: 5, primary: true },
   { to: '/wishlist', label: 'Wishlist', icon: Heart, status: 'planned', phase: 8, primary: false },

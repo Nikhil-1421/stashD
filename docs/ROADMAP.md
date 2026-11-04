@@ -35,10 +35,21 @@ Acceptance criteria and status:
 - ⬜ Generate DB types from the live schema (`npm run db:types`) and drop the hand-written file.
 - ⬜ Playwright scaffold with the register → login → dashboard smoke test (needs local Supabase).
 
-## Phase 2 — Catalog / custom sets / cards / variants schema + CRUD ⬜
-Migrations for games, providers, catalog_sets/cards (with `owner_id` for custom), variant
-definitions, printings; Collections page with create/edit/duplicate custom set; card list with
-pagination; tests for RLS and CRUD.
+## Phase 2 — Catalog / custom sets / cards / variants schema + CRUD ✅ (2026-11-04)
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| Catalog schema: games, providers, sets, cards, variants, printings; user_sets | ✅ written · ⛔ must be applied via SQL editor | `supabase/migrations/20261104200000_catalog_and_user_sets.sql` |
+| Custom rows owner-scoped by RLS; provider rows public read | ✅ | policies + `catalog_child_sync_owner()` trigger; pgTAP `catalog_rls.test.sql` (unrun: Docker) |
+| Create / edit / delete custom set | ✅ | `/sets/new`, `/sets/:id/edit`, inline delete on detail |
+| Card CRUD with pagination (100/page) and debounced search | ✅ | `features/cards/CardsSection.tsx` |
+| Variant definitions per set; printings auto-created; per-cell exists toggle | ✅ | `VariantsSection.tsx`, DB triggers |
+| Natural card-number ordering identical in SQL and TS | ✅ | `card_number_sort_key()` ↔ `cardNumber.ts` + tests |
+| Dashboard shows real set/card counts and recent sets | ✅ | `DashboardPage.tsx` |
+| Tests | ✅ | 48 Vitest tests; 2 pgTAP files pending a local stack |
+
+Deferred to later phases: duplicating a set (phase 3 alongside import), optimistic toggles with
+rollback (phase 5), image/artwork fields in the UI (phase 9), virtualised card table (phase 5).
 
 ## Phase 3 — Checklist import / paste / manual ⬜
 CSV/XLSX/JSON upload → preview → header mapping → validation → conflict report → commit; paste

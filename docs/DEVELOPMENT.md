@@ -44,6 +44,10 @@ Supabase Studio: http://localhost:54323.
 ## Testing
 - Unit/component: Vitest + Testing Library; helpers in `src/test/render.tsx` provide auth and
   entitlement contexts and a memory router.
+- Mocking data modules: use `vi.mock('@/features/x/api', ...)` that delegates to a plain `let impl`
+  variable you reassign per test. Do **not** combine `vi.fn()` + `mockReset()` with a rejecting
+  implementation: in Vitest 5 the reset spy's settled-result tracking surfaces the rejection as an
+  unhandled error and fails the test (observed 2026-11-04, `CollectionsPage.test.tsx`).
 - Database: pgTAP files under `supabase/tests/database`, run by `npm run db:test`.
 - E2E: Playwright (phase 10 scaffold) against the local stack.
 

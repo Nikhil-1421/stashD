@@ -42,6 +42,9 @@ src/
     profile/      profile queries + Settings page
     entitlements/ capability policy (free plan today)
     dashboard/
+    sets/         user_set_overview queries, custom set create/edit/delete, Collections pages
+    cards/        card + variant + printing CRUD, checklist editor sections
+    catalog/      domain/: pure helpers shared with SQL (card number sort key, slug)
   lib/            env.ts (validated env), supabase/ (client + DB types), utils.ts
   hooks/          generic React hooks
   pages/          non-feature pages (planned sections, 404, route error)
@@ -59,7 +62,7 @@ docs/             living documentation (this folder)
 1. **UI** (`components`, feature pages) renders state and calls feature APIs. No direct `fetch`.
 2. **Domain logic** (completion math, slot math, parsers, copy formatting) lives in pure TypeScript
    modules under the owning feature (`features/<x>/domain/`), unit-tested, with no React or Supabase
-   imports. Not yet present; begins in phase 2.
+   imports. First examples: `features/catalog/domain/cardNumber.ts`, `slug.ts`.
 3. **Persistence** goes through `features/<x>/api.ts` using the typed Supabase client. Query keys
    are declared next to the API (`profileKeys`).
 4. **External providers** (phase 9) sit behind `features/catalog/providers/<name>.ts` implementing
