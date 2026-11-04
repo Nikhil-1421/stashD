@@ -42,9 +42,8 @@ Reference app analysis: `docs/REFERENCE_APPLICATION_ANALYSIS.md`. Decisions D-00
   `src/app/brand.ts`, `src/styles/index.css` tokens, `public/favicon.svg`, `BrandMark.tsx`.
 
 ## Pending right now
-1. Start phase 7 with route-level code splitting (bundle ~957 kB), then dashboard, global search,
-   bulk ops on the set page, the parked Bubble Check large-set layout, a per-set manual-order mode,
-   per-set notes.
+1. Phase 7 in progress: code splitting ✅; next the Bubble Check large-set layout, then dashboard,
+   global search, bulk ops on the set page, a per-set manual-order mode, per-set notes.
 2. Dev server now listens on the LAN by default (`server.host = true`, owner request 2026-11-04);
    the owner tests on a phone via the Network URL Vite prints.
 ## Code map (where things are)
@@ -100,8 +99,9 @@ Dashboard summary (sets, progress, missing quick access, recent binders), global
 sets/cards, bulk operations on the set page (selection model exists in Bubble Check), the parked
 Bubble Check large-set layout work (density setting, sticky toolbar + range jump links, remembered
 status filter), a per-set "manual order" mode so checklist drag reorder becomes meaningful, and
-per-set notes. Route-level code splitting is overdue (bundle ~957 kB, 280 kB gzip) — do it at the start.
+per-set notes. Code splitting done 2026-11-04 (rolldown `codeSplitting` groups in `vite.config.ts`).
 
 ## Checks
 `export PATH="$HOME/.local/node/bin:$PATH" && npm run check` → typecheck, oxlint, Vitest (137 tests
-in 30 files), Vite build (one ~957 kB chunk, 280 kB gzip; split by route at the start of phase 7).
+in 30 files), Vite build (lazy route
+chunks + react/supabase/query/dnd/vendor chunks; first screen ≈ 210 kB gzip, mostly vendor).

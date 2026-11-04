@@ -30,3 +30,6 @@ Deploy previews work with the same variables; the app shows the setup page if th
 - RLS tests green against the target schema (`npm run db:test` locally, same migrations).
 - Auth e-mails verified end-to-end on the deployed URL.
 - Custom SMTP configured in Supabase for production e-mail deliverability.
+
+## Bundle layout
+Routes are lazy modules (`src/app/router.tsx`); `vite.config.ts` groups node_modules into `react`, `supabase`, `query`, `dnd` and `vendor` chunks so a deploy only invalidates the chunks whose contents changed. Netlify serves `dist/assets/*` with immutable caching by default (hashed names).

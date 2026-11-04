@@ -124,9 +124,17 @@ No migration: bulk writes use PostgREST upsert on `collection_items` / `user_set
 | Manual card reorder in checklists (deferred from phase 3) | ⬜ phase 7 — needs a per-set "manual order" mode first (D-020) | |
 | Browser pass on the hosted project | ✅ slices 1 and 2 incl. touch drag on a phone (owner, 2026-11-04) | |
 
-## Phase 7 — Dashboard, global search, bulk ops ⬜
+## Phase 7 — Dashboard, global search, bulk ops 🟡 (started 2026-11-04)
+
+| Criterion | Status | Evidence |
+| --- | --- | --- |
+| Route-level code splitting + vendor chunks | ✅ initial app chunk ~23 kB; react / supabase / query / dnd / vendor chunks cached separately; pages lazy with a shell loading bar | `src/app/router.tsx`, `vite.config.ts`, `AppShell.tsx` |
+| Bubble Check large-set viewing (density, sticky toolbar + range jump links, remembered status filter) | ⬜ next | |
+| Dashboard: progress overview, missing quick access, recent binders | ⬜ | |
+| Global search across sets and cards | ⬜ | |
+| Bulk operations on the set page (selection + mark / exclude) | ⬜ | |
+| Per-set manual card order mode (unblocks checklist drag reorder) | ⬜ needs migration | |
+| Per-set notes (reference feature) | ⬜ needs migration | |
 ## Phase 8 — Wishlist/trade, sharing, copy formats ⬜
 ## Phase 9 — Catalog adapters / image sources ⬜ (TCGdex, Scryfall, YGOPRODeck first)
 ## Phase 10 — Export/backup, hardening, accessibility, deployment ⬜
-Known debt to address here: the production bundle is a single ~716 kB (207 kB gzip) chunk; split by
-route (`lazy` route modules) and vendor once there is more than one real page.
